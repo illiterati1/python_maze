@@ -5,77 +5,70 @@ Author: Brendan Wilson
 
 from maze_constants import *
 
-opposite = {'north': 'south', 'east': 'west', 'south': 'north', \
-            'west': 'east'}
-
 class WallError(Exception):
     def __init__(self, error):
         self.error = error
 
-class Cell(object):
-    """north, east, south, and west will be references to other Cells.
-    This class will probably just be passed in to the drawing
-    function to deal with displaying the maze."""
-
-    __slots__ = '_directions', '_visited', '_xLoc', '_yLoc'
-
-
-    case = {'north': 0, 'east': 1, 'south': 2, 'west': 3}
-
-    def __init__(self, x, y, \
-                 north=False, east=False, south=False, west=False):
-        self._xLoc = x
-        self._yLoc = y
-        self._directions = [north, east, south, west]
-        self._visited = False
-
-    def visit(self):
-        self._visited = True
-
-    def unvisit(self):
-        self._visited = False
-
-    def visited(self):
-        return self._visited
-
-    def open_wall(self, direction):
-        """direction must be 'north', 'east', etc."""
-        self._directions[Cell.case[direction]] = True
-
-    def is_open(self, direction):
-        """Checks whether the given direction is open"""
-        return self._directions[Cell.case[direction]]
-
-    def get_position(self):
-        """Return the x, y position of the cell as a tuple"""
-        return self._xLoc, self._yLoc
-
-    def get_links(self):
-        """Returns the entire direction list"""
-        return self._directions
-
-    def is_junction(self):
-        return self._directions.count(True) > 2
-
-    def is_deadend(self):
-        return self._directions.count(True) == 1
-
-    def is_isolated(self):
-        """For determining if the cell has no connections"""
-        return self._directions.count(True) == 0
-
-    def is_hallway(self):
-        return self._directions.count(True) == 2
-
 class Maze(object):
 
+    class Cell(object):
+        """north, east, south, and west will be references to other Cells.
+        This class will probably just be passed in to the drawing
+        function to deal with displaying the maze."""
+
+        __slots__ = '_directions', '_xLoc', '_yLoc'
+
+
+        case = {'north': 0, 'east': 1, 'south': 2, 'west': 3}
+
+        def __init__(self, x, y, \
+                     north=False, east=False, south=False, west=False):
+            self._xLoc = x
+            self._yLoc = y
+            self._directions = [north, east, south, west]
+
+        def open_wall(self, direction):
+            """direction must be 'north', 'east', etc."""
+            self._directions[Cell.case[direction]] = True
+
+        def is_open(self, direction):
+            """Checks whether the given direction is open"""
+            return self._directions[Cell.case[direction]]
+
+        def get_position(self):
+            """Return the x, y position of the cell as a tuple"""
+            return self._xLoc, self._yLoc
+
+        def get_links(self):
+            """Returns the entire direction list"""
+            return self._directions
+
+        def is_junction(self):
+            return self._directions.count(True) > 2
+
+        def is_deadend(self):
+            return self._directions.count(True) == 1
+
+        def is_isolated(self):
+            """For determining if the cell has no connections"""
+            return self._directions.count(True) == 0
+
+        def is_hallway(self):
+            return self._directions.count(True) == 2
+
     class Position(object):
+        """Just a wrapper class to make dealing with cells nicer.
+        Purposefully weak encapsulation."""
         def __init__(self, maze, cell):
-            self.__maze = maze
-            self.__cell = cell
+            self.maze = maze
+            self.cell = cell
 
         def move(self, direction):
-            self.__cell = self.__maze._move(self.__cell, direction)
+            self.cell = self.maze._move(self.cell, direction)
+
+        def _clip(self, direction):
+            """Go through maze walls, useful for a couple of the walkers"""
+            self.cell = self.maze._clip(self.cell, direction)
 
         def _access_cell(self):
             return self.__cell
@@ -85,6 +78,9 @@ class Maze(object):
                 'east': (lambda x, y: (x+1, y)),
                 'south': (lambda x, y: (x, y+1)),
                 'west': (lambda x, y: (x-1, y))}
+
+    opposite = {'north': 'south', 'east': 'west', 'south': 'north', \
+                'west': 'east'}
 
     def __init__(self):
         self._cells = [[Cell(x, y) \
@@ -122,6 +118,10 @@ class Maze(object):
             return self._clip(cell, direction)
         else:
             raise WallError('There is a wall there')
+
+    def _get_maze_array(self):
+        """Return the entire array; useful for certain walking functions"""
+        return self._cells
 
     def start(self):
         return Position(self, self._get_cell(0, 0))

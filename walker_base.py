@@ -6,11 +6,11 @@ Author: Brendan Wilson
 class WalkerBase(object):
 	"""The grandparent of all walkers"""
 
-	def __init__(self, position):
-		"""Takes a position object from the maze in question"""
+	def __init__(self, maze, position):
+		"""Takes a cell object from the maze in question"""
+		self._maze = maze
 		self._position = position
 
 	def move(self, direction):
 		"""Move in the indicated direction"""
-		self._position.move(direction)
-		
+		self._position = 

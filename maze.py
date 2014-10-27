@@ -56,24 +56,6 @@ class Maze(object):
         def is_hallway(self):
             return self._directions.count(True) == 2
 
-    class Position(object):
-        """Just a wrapper class to make dealing with cells nicer.
-        Purposefully weak encapsulation."""
-        def __init__(self, maze, cell):
-            self.maze = maze
-            self.cell = cell
-
-        def move(self, direction):
-            self.cell = self.maze._move(self.cell, direction)
-
-        def _clip(self, direction):
-            """Go through maze walls, useful for a couple of the walkers"""
-            self.cell = self.maze._clip(self.cell, direction)
-
-        def _access_cell(self):
-            return self.__cell
-
-
     movement = {'north': (lambda x, y: (x, y-1)),
                 'east': (lambda x, y: (x+1, y)),
                 'south': (lambda x, y: (x, y+1)),
@@ -124,7 +106,7 @@ class Maze(object):
         return self._cells
 
     def start(self):
-        return Position(self, self._get_cell(0, 0))
+        return self._cells[0][0]
 
 if __name__ == '__main__':
     maze = Maze()

@@ -16,10 +16,11 @@ class Maze(object):
         This class will probably just be passed in to the drawing
         function to deal with displaying the maze."""
 
-        __slots__ = '_directions', '_xLoc', '_yLoc'
+        __slots__ = '_directions', '_xLoc', '_yLoc', '_Tk_id', '_maze'
 
-        def __init__(self, x, y, \
+        def __init__(self, x, y, maze, \
                      north=False, east=False, south=False, west=False):
+            self._maze = maze
             self._xLoc = x
             self._yLoc = y
             self._directions = {'north': north, 'east': east, \
@@ -70,10 +71,12 @@ class Maze(object):
     opposite = {'north': 'south', 'east': 'west', 'south': 'north', \
                 'west': 'east'}
 
-    def __init__(self):
-        self._cells = [[Cell(x, y) \
-                        for y in xrange(XCELLS)] \
-                        for x in xrange(YCELLS)]
+    def __init__(self, artist):
+        # artist should be a reference to the drawing class
+        self._artist = artist
+        self._cells = [[self.Cell(x, y, self) \
+                        for y in xrange(YCELLS)] \
+                        for x in xrange(XCELLS)]
 
     def _get_cell(self, x, y):
         """Returns the cell at position x, y.
@@ -114,6 +117,9 @@ class Maze(object):
     def start(self):
         return self._cells[0][0]
 
+    def finish(self):
+        return self._cells[XCELLS-1][YCELLS-1]
+
 if __name__ == '__main__':
-    maze = Maze()
-    
+    maze1 = Maze(1)
+    maze2 = Maze(2)

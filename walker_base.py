@@ -54,3 +54,13 @@ class ArrayWalker(WalkerBase):
 		"""Return the info about the current cell"""
 		x, y = self._position.location()
 		return self._maze[x][y]
+
+class LinkWalker(WalkerBase):
+	"""A walker class that keeps about links between junctions.
+	Only used for the Theraux? algorithm."""
+
+	class Node(object):
+		"""
+
+	def __init__(self, maze, position):
+		super(LinkWalker, self).__init__(maze, position)

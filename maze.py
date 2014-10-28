@@ -7,7 +7,7 @@ from maze_constants import *
 
 class WallError(Exception):
     def __init__(self, error):
-        self.error = error
+        self.message = error
 
 class Maze(object):
 

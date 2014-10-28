@@ -13,3 +13,4 @@ YCELLS = MAZE_HEIGHT / CELL_SIZE
 # Colors
 NULL_FILL = 'black'
 PLAN_FILL = 'grey'
+OPEN_FILL = 'white'

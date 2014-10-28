@@ -48,6 +48,9 @@ class Wilson(walker_base.ArrayWalker):
         """Check to see if the given node has been dug out already"""
         return self._map[x][y].isOpen
 
+    def _open(self, x, y):
+        self._map[x][y].isOpen = True
+
     def _erase_tracks(self, x, y):
         """Follow the directions left and clean them up"""
         direction = self._get_direction(x, y)
@@ -77,6 +80,22 @@ class Wilson(walker_base.ArrayWalker):
             self._erase_tracks(newX, newY)
 
         self._plan(newX, newY)
+
+    def _dig(self):
+        """There should be a good path from the current position back to
+        the open part of the maze. This will then "dig" these cells open.
+        """
+
+        x, y = self.position.location()
+        direction = self._get_direction(x, y)
+        if self._is_open(x, y):
+            return
+
+        self._open(x, y)
+        self.position.open_wall(direction)
+        self.position.paint(OPEN_FILL)
+
+        self.move(direction)
 
     def build_maze(self):
         """Modifies the maze in place"""

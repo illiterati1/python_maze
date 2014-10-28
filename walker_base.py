@@ -56,11 +56,21 @@ class ArrayWalker(WalkerBase):
 		return self._maze[x][y]
 
 class LinkWalker(WalkerBase):
-	"""A walker class that keeps about links between junctions.
-	Only used for the Theraux? algorithm."""
+	"""A walker class that keeps information about links between junctions.
+	Only used for the Tremaux algorithm."""
 
 	class Node(object):
-		"""
+		"""An object for storing the knowledge of the LinkWalkers.
+		Little more than a structure."""
+
+		__slots__ = 'cell', 'north', 'east', 'south', 'west'
+
+		def __init__(self, cell, north=None, east=None, south=None, west=None):
+			self.cell = cell
+			self.north = north
+			self.east = east
+			self.south = south
+			self.west = west
 
 	def __init__(self, maze, position):
 		super(LinkWalker, self).__init__(maze, position)

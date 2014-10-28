@@ -56,6 +56,11 @@ class Maze(object):
         def is_hallway(self):
             return self._directions.count(True) == 2
 
+        def open_paths(self):
+            """Returns a list of direction strings for random searches"""
+            for direction in case.keys():
+                if self._directions[case[]]
+
     movement = {'north': (lambda x, y: (x, y-1)),
                 'east': (lambda x, y: (x+1, y)),
                 'south': (lambda x, y: (x, y+1)),
@@ -66,8 +71,8 @@ class Maze(object):
 
     def __init__(self):
         self._cells = [[Cell(x, y) \
-                        for y in xrange(MAZE_HEIGHT/CELL_SIZE)] \
-                        for x in xrange(MAZE_WIDTH/CELL_SIZE)]
+                        for y in xrange(XCELLS)] \
+                        for x in xrange(YCELLS)]
 
     def _get_cell(self, x, y):
         """Returns the cell at position x, y.

@@ -31,8 +31,8 @@ class ArrayWalker(WalkerBase):
 
 	def __init__(self, maze, position):
 		super(ArrayWalker, self).__init__(maze, position)
-		self._map = [[None for x in xrange(MAZE_WIDTH/CELL_SIZE)] \
-					 for y in xrange(MAZE_HEIGHT/CELL_SIZE)]
+		self._map = [[None for x in xrange(XCELLS)] \
+					 for y in xrange(YCELLS)]
 
 	def init_map(self, default):
 		"""Set each point on the map to some default value"""
@@ -73,4 +73,4 @@ class LinkWalker(WalkerBase):
 			self.west = west
 
 	def __init__(self, maze, position):
-		super(LinkWalker, self).__init__(maze, position)
+		super(LinkWalker, self).__init__(maze, position)_

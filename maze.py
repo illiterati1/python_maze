@@ -18,22 +18,20 @@ class Maze(object):
 
         __slots__ = '_directions', '_xLoc', '_yLoc'
 
-
-        case = {'north': 0, 'east': 1, 'south': 2, 'west': 3}
-
         def __init__(self, x, y, \
                      north=False, east=False, south=False, west=False):
             self._xLoc = x
             self._yLoc = y
-            self._directions = [north, east, south, west]
+            self._directions = {'north': north, 'east': east, \
+                                'south': south, 'west': west}
 
         def open_wall(self, direction):
             """direction must be 'north', 'east', etc."""
-            self._directions[Cell.case[direction]] = True
+            self._directions[direction] = True
 
         def is_open(self, direction):
             """Checks whether the given direction is open"""
-            return self._directions[Cell.case[direction]]
+            return self._directions[direction]
 
         def get_position(self):
             """Return the x, y position of the cell as a tuple"""
@@ -44,22 +42,25 @@ class Maze(object):
             return self._directions
 
         def is_junction(self):
-            return self._directions.count(True) > 2
+            return self._directions.values().count(True) > 2
 
         def is_deadend(self):
-            return self._directions.count(True) == 1
+            return self._directions.values().count(True) == 1
 
         def is_isolated(self):
             """For determining if the cell has no connections"""
-            return self._directions.count(True) == 0
+            return self._directions.values().count(True) == 0
 
         def is_hallway(self):
-            return self._directions.count(True) == 2
+            return self._directions.values().count(True) == 2
 
         def open_paths(self):
             """Returns a list of direction strings for random searches"""
-            for direction in case.keys():
-                if self._directions[case[]]
+            openList = []
+            for direction in self._directions.keys():
+                if self._directions[direction]:
+                    openList.append(direction)
+            return openList
 
     movement = {'north': (lambda x, y: (x, y-1)),
                 'east': (lambda x, y: (x+1, y)),

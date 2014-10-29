@@ -114,6 +114,9 @@ class Maze(object):
         """Return the entire array; useful for certain walking functions"""
         return self._cells
 
+    def paint(self, cell, color):
+        """
+
     def start(self):
         return self._cells[0][0]
 

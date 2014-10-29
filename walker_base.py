@@ -73,4 +73,4 @@ class LinkWalker(WalkerBase):
 			self.west = west
 
 	def __init__(self, maze, position):
-		super(LinkWalker, self).__init__(maze, position)_
+		super(LinkWalker, self).__init__(maze, position)

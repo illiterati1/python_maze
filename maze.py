@@ -21,7 +21,7 @@ class Maze(object):
         def __init__(self, x, y, maze, \
                      north=False, east=False, south=False, west=False):
             self._maze = maze
-            self._xLoc = x
+            self._xLoc = x  # x and y are cell numbers, not pixel numbers
             self._yLoc = y
             self._directions = {'north': north, 'east': east, \
                                 'south': south, 'west': west}
@@ -115,7 +115,11 @@ class Maze(object):
         return self._cells
 
     def paint(self, cell, color):
+        """Send a cell to the artist object to be painted on to the maze
+        canvas.
         """
+
+        self.artist.paint_cell(cell, color)
 
     def start(self):
         return self._cells[0][0]

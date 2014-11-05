@@ -31,6 +31,16 @@ class MazeArtist(object):
         topLeft = (x * CELL_SIZE + 1, y * CELL_SIZE + 1)
         bottomRight = (topLeft[0] + CELL_SIZE - 2, topLeft[1] + CELL_SIZE - 2)
 
+        self.tkCells[x][y] = self.mazeCanvas.create_rectangle(topLeft[0], \
+                                                              topLeft[1], \
+                                                              bottomRight[0], \
+                                                              bottomRight[1], \
+                                                              fill='black'\
+                                                              outline="None")
+
+        if self._is_congruent(x, y):
+            
+
     def paint_cell(self, cell, color):
         """Takes a cell object and a color to paint it. Does not update walls.
         Color must be something that Tkinter will recognize."""

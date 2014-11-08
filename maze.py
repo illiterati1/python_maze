@@ -56,11 +56,15 @@ class Maze(object):
         def is_hallway(self):
             return self._directions.values().count(True) == 2
 
-        def open_paths(self):
-            """Returns a list of direction strings for random searches"""
+        def open_paths(self, inbound=None):
+            """Returns a list of direction strings for random searches.
+            indound is the direction the walker just came from; 
+            it will be swapped and omitted
+            """
+            inbound = OPPOSITES.get(inbound)
             openList = []
             for direction in self._directions.keys():
-                if self._directions[direction]:
+                if self._directions[direction] and direction is not inbound:
                     openList.append(direction)
             return openList
 

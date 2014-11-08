@@ -31,20 +31,20 @@ class DepthWalker(walker_base.ArrayWalker):
     def _unvisit(self, node):
         node.visited = False
 
-    def walk(self):
+    def walk(self, last=None):
         if self._position is self._maze.finish():
             self.paint(self._position, FOUND_COLOR)
             return True
         self.mark_current(self._visit)
         self.paint(self._position, SEARCH_COLOR)
 
-        paths = self._position.open_paths()
+        paths = self._position.open_paths(last)
 
         for direction in paths:
             position = self._maze._move(self._position, direction)
             if not self.read_map(position).visited:
                 self.move(direction)
-                found = self.walk()
+                found = self.walk(direction)
                 self.move(OPPOSITES[direction])
                 if found:
                     self.paint(self._position, FOUND_COLOR)

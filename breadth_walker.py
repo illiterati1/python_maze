@@ -12,6 +12,7 @@ class SearchColors(object):
               'gray68', 'gray66', 'gray64', 'gray62', 'gray60']
 
     def __init__(self):
+        assert len(SearchColors.colors) > 1
         self.index = 0
         self.step = 1
 

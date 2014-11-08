@@ -59,7 +59,7 @@ class Maze(object):
         def open_paths(self, inbound=None):
             """Returns a list of direction strings for random searches.
             indound is the direction the walker just came from; 
-            it will be swapped and omitted
+            it will be swapped and omitted.
             """
             inbound = OPPOSITES.get(inbound)
             openList = []
@@ -137,8 +137,5 @@ class Maze(object):
         return self._cells[XCELLS-1][YCELLS-1]
 
 if __name__ == '__main__':
-    maze = Maze(artist.MazeArtist())
-    time.sleep(2)
-    
-    maze.paint(maze.start(), 'red')
-    raw_input('...')
+    t = Maze.Cell(0, 0, None, True, False, True, True)
+    print t.open_paths('south')

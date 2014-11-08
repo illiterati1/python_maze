@@ -60,7 +60,7 @@ class Wilson(walker_base.ArrayWalker):
         counter = 0
         while True:
             if not RUSH_WILSON:
-                self._maze.paint(self._maze._get_cell(x, y), PLAN_FILL, counter % 50 == 0)
+                self._maze.paint(self._maze._get_cell(x, y), PLAN_FILL, counter % WILSON_SPEED == 0)
             counter += 1
             randInt = random.randrange(0, 4)    # will be 0, 1, 2, or 3
             newX, newY = walker_base.WalkerBase.movement[Wilson.directions[randInt]](x, y)

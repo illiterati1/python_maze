@@ -41,9 +41,8 @@ class DepthWalker(walker_base.ArrayWalker):
         paths = self._position.open_paths()
 
         for direction in paths:
-            x, y = self._position.get_position()
-            x, y = walker_base.WalkerBase.movement[direction](x, y)
-            if not self.read_map(x, y).visited:
+            position = self._maze._move(self._position, direction)
+            if not self.read_map(position).visited:
                 self.move(direction)
                 found = self.walk()
                 self.move(OPPOSITES[direction])

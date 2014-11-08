@@ -2,7 +2,7 @@
 Constant values for the maze program
 """
 
-MAZE_HEIGHT = 601
+MAZE_HEIGHT = 801
 MAZE_WIDTH = 801
 
 CELL_SIZE = 10
@@ -16,6 +16,10 @@ NULL_FILL = 'black'
 PLAN_FILL = 'grey'
 OPEN_FILL = 'white'
 
+# Helpers
 DIRECTIONS = {'north': 0, 'east': 1, 'south': 2, 'west': 3}
 OPPOSITES = {'north': 'south', 'east': 'west', 'south': 'north', \
              'west': 'east'}
+
+# Flags
+RUSH_WILSON = True

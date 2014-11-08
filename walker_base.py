@@ -56,8 +56,9 @@ class ArrayWalker(WalkerBase):
         x, y = cell.get_position()
         mark(self._map[x][y])
 
-    def read_map(self, x, y):
+    def read_map(self, position):
         """Return the info about the current cell"""
+        x, y = position.get_position()
         return self._map[x][y]
 
 class LinkWalker(WalkerBase):

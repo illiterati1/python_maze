@@ -7,7 +7,26 @@ from Queue import Queue
 from maze_constants import *
 import walker_base
 
-SEARCH_COLOR = 'gray70'
+class SearchColors(object):
+    colors = ['gray80', 'gray78', 'gray76', 'gray74', 'gray72', 'gray70', \
+              'gray68', 'gray66', 'gray64', 'gray62', 'gray60']
+
+    def __init__(self):
+        self.index = 0
+        self.step = 1
+
+    def color(self):
+        return SearchColors.colors[self.index]
+
+    def next(self):
+        if self.index == len(SearchColors.colors) - 1:
+            self.step = -1
+        elif self.index == 0:
+            self.step = 1
+        self.index += self.step
+
+
+SEARCH_COLORS = SearchColors()
 FOUND_COLOR = 'red'
 marker = object()
 
@@ -49,9 +68,10 @@ class BreadthWalker(walker_base.ArrayWalker):
                 hitMarker = True
                 self.queue.put(marker)
                 position = self._get_next()
+                SEARCH_COLORS.next()
                 continue
 
-            self.paint(position, SEARCH_COLOR, redraw=hitMarker)
+            self.paint(position, SEARCH_COLORS.color(), redraw=hitMarker)
             hitMarker = False
 
             for direction in position.open_paths():

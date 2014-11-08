@@ -3,6 +3,7 @@ A collection of abstract-ish classes for the maze walker classes
 Author: Brendan Wilson
 """
 
+import copy
 from maze_constants import *
 
 class WalkerBase(object):
@@ -31,14 +32,14 @@ class ArrayWalker(WalkerBase):
 
 	def __init__(self, maze, position):
 		super(ArrayWalker, self).__init__(maze, position)
-		self._map = [[None for x in xrange(XCELLS)] \
-					 for y in xrange(YCELLS)]
+		self._map = [[None for y in xrange(YCELLS)] \
+					 for x in xrange(XCELLS)]
 
 	def init_map(self, default):
 		"""Set each point on the map to some default value"""
-		for row in len(self._map):
-			for col in len(row):
-				self._map[row][col] = default
+		for row in xrange(len(self._map)):
+			for col in xrange(len(self._map[row])):
+				self._map[row][col] = copy.copy(default)
 
 	def mark_current(self, mark):
 		"""Mark the location with whatever data the child class needs.

@@ -27,11 +27,11 @@ class Wilson(walker_base.ArrayWalker):
 
     def __init__(self, maze):
         super(Wilson, self).__init__(maze, maze.start())
-        self.init_map(Node(False, None))
+        self.init_map(self.Node(False, None))
 
     def _is_valid(self, x, y):
         """Make sure a cell is in bounds"""
-        return x < 0 or x >= XCELLS or y < 0 or y >= YCELLS
+        return 0 <= x < XCELLS and 0 <= y < YCELLS
 
     def _mark_direction(self, x, y, direction):
         """Mark the direction gone on the map"""
@@ -57,52 +57,56 @@ class Wilson(walker_base.ArrayWalker):
         if direction == None:
             return
         self._mark_direction(x, y, None)
-        self._maze.paint(self._maze._get_cell(x, y), NULL_FILL)
+        self._maze.paint(self._maze._get_cell(x, y), NULL_FILL, False)
         newX, newY = Wilson.movement[direction](x, y)
         self._erase_tracks(newX, newY)
 
     def _plan(self, x, y):
         """Tries to find a route from a non-open cell back to an open one"""
-
-        self._maze.paint(self._maze._get_cell(x, y), PLAN_FILL)
-        randInt = random.randrange(0, 4)    # will be 0, 1, 2, or 3
-        newX, newY = Wilson.movement[Wilson.directions[randInt]](x, y)
-        while not self._is_valid(newX, newY):   # check clockwise for good dir
-            randInt = (randInt + 1) % len(directions)
+        oldDir = -1
+        while True:
+            self._maze.paint(self._maze._get_cell(x, y), PLAN_FILL)
+            randInt = random.randrange(0, 4)    # will be 0, 1, 2, or 3
             newX, newY = Wilson.movement[Wilson.directions[randInt]](x, y)
+            while (newX, newY) == (x, y) or not self._is_valid(newX, newY):
+                randInt = (randInt + 1) % len(Wilson.directions)
+                newX, newY = Wilson.movement[Wilson.directions[randInt]](x, y)
 
-        self._mark_direction(x, y, Wilson.directions[randInt])
+            self._mark_direction(x, y, Wilson.directions[randInt])
 
-        if self._is_open(newX, newY):   # success
-            return
-        elif self._has_direction(newX, newY):
-            # We need to clip off a portion of the direction list
-            self._erase_tracks(newX, newY)
+            if self._is_open(newX, newY):   # success
+                return
+            elif self._has_direction(newX, newY):
+                # We need to clip off a portion of the direction list
+                self._erase_tracks(newX, newY)
 
-        self._plan(newX, newY)
+            x, y = newX, newY
 
     def _dig(self):
         """There should be a good path from the current position back to
         the open part of the maze. This will then "dig" these cells open.
         """
 
-        x, y = self.position.location()
+        x, y = self._position.get_position()
         direction = self._get_direction(x, y)
         if self._is_open(x, y):
+            self._maze.paint(self._position, OPEN_FILL)
             return
 
         self._open(x, y)
-        self.position.open_wall(direction)
-        self._maze.paint(self.position, OPEN_FILL)
+        self._maze._join_cells(self._position, direction)
+        self._maze.paint(self._position, OPEN_FILL)
 
         self.move(direction)
+        self._dig()
 
     def build_maze(self):
         """Modifies the maze in place"""
-        self._map[0][0].isOpen = True
+        self._open(0, 0)
+        self._maze.paint(self._position, OPEN_FILL)
 
-        for x in xrange(XCELLS):
-            for y in xrange(YCELLS):
+        for y in xrange(YCELLS):
+            for x in xrange(XCELLS):
                 if not self._map[x][y].isOpen:
                     self._plan(x, y)
                     self._position = self._maze._get_cell(x, y)

@@ -3,6 +3,7 @@ The class file for the maze, as well as the cells within the maze.
 Author: Brendan Wilson
 """
 
+import time
 from maze_constants import *
 
 class WallError(Exception):
@@ -88,8 +89,7 @@ class Maze(object):
         Raises WallError if cell is out of bounds."""
         currentX, currentY = cell.get_position()
         newX, newY = Maze.movement[direction](currentX, currentY)
-        if newX < 0 or newX >= MAZE_WIDTH/CELL_SIZE \
-           or newY < 0 or newY >= MAZE_HEIGHT/CELL_SIZE:
+        if newX < 0 or newX >= XCELLS or newY < 0 or newY >= YCELLS:
            raise WallError('Out of bounds')
         return self._get_cell(newX, newY) 
 
@@ -99,7 +99,7 @@ class Maze(object):
         given direction.
         """
         cell.open_wall(direction)
-        self._clip(cell, direction).open_wall(opposite[direction])
+        self._clip(cell, direction).open_wall(Maze.opposite[direction])
         # The above line will return a WallError if an out of bounds cell
         # is used
 
@@ -114,12 +114,11 @@ class Maze(object):
         """Return the entire array; useful for certain walking functions"""
         return self._cells
 
-    def paint(self, cell, color):
+    def paint(self, cell, color, redraw=True):
         """Send a cell to the artist object to be painted on to the maze
         canvas.
         """
-
-        self.artist.paint_cell(cell, color)
+        self._artist.paint_cell(cell, color, redraw)
 
     def start(self):
         return self._cells[0][0]
@@ -128,5 +127,8 @@ class Maze(object):
         return self._cells[XCELLS-1][YCELLS-1]
 
 if __name__ == '__main__':
-    maze1 = Maze(1)
-    maze2 = Maze(2)
+    maze = Maze(artist.MazeArtist())
+    time.sleep(2)
+    
+    maze.paint(maze.start(), 'red')
+    raw_input('...')

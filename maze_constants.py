@@ -22,4 +22,4 @@ OPPOSITES = {'north': 'south', 'east': 'west', 'south': 'north', \
              'west': 'east'}
 
 # Flags
-RUSH_WILSON = True
+RUSH_WILSON = False

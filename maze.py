@@ -114,7 +114,13 @@ class Maze(object):
         """Return the entire array; useful for certain walking functions"""
         return self._cells
 
-    def paint(self, cell, color, redraw=True):
+    def clean(self):
+        """Return every cell to a default state"""
+        for row in self._cells:
+            for cell in row:
+                self.paint(cell, OPEN_FILL, False)
+
+    def paint(self, cell, color, redraw=True, changeWalls=True):
         """Send a cell to the artist object to be painted on to the maze
         canvas.
         """

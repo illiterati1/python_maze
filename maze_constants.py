@@ -3,7 +3,7 @@ Constant values for the maze program
 """
 
 MAZE_HEIGHT = 601
-MAZE_WIDTH = 601
+MAZE_WIDTH = 801
 
 CELL_SIZE = 10
 # includes space for walls, so subtract 2
@@ -17,3 +17,5 @@ PLAN_FILL = 'grey'
 OPEN_FILL = 'white'
 
 DIRECTIONS = {'north': 0, 'east': 1, 'south': 2, 'west': 3}
+OPPOSITES = {'north': 'south', 'east': 'west', 'south': 'north', \
+             'west': 'east'}

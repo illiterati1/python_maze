@@ -18,16 +18,10 @@ class Wilson(walker_base.ArrayWalker):
             self.isOpen = isOpen
             self.direction = direction
 
-    movement = {'north': (lambda x, y: (x, y-1)),
-                'east': (lambda x, y: (x+1, y)),
-                'south': (lambda x, y: (x, y+1)),
-                'west': (lambda x, y: (x-1, y))}
-
-    directions = movement.keys()
+    directions = walker_base.WalkerBase.movement.keys()
 
     def __init__(self, maze):
-        super(Wilson, self).__init__(maze, maze.start())
-        self.init_map(self.Node(False, None))
+        super(Wilson, self).__init__(maze, maze.start(), self.Node(False, None))
 
     def _is_valid(self, x, y):
         """Make sure a cell is in bounds"""
@@ -58,21 +52,20 @@ class Wilson(walker_base.ArrayWalker):
             return
         self._mark_direction(x, y, None)
         self._maze.paint(self._maze._get_cell(x, y), NULL_FILL, False)
-        newX, newY = Wilson.movement[direction](x, y)
+        newX, newY = walker_base.WalkerBase.movement[direction](x, y)
         self._erase_tracks(newX, newY)
 
     def _plan(self, x, y):
         """Tries to find a route from a non-open cell back to an open one"""
         counter = 0
-        oldDir = -1
         while True:
-            self._maze.paint(self._maze._get_cell(x, y), PLAN_FILL, counter % 20 == 0)
+            self._maze.paint(self._maze._get_cell(x, y), PLAN_FILL, False)
             counter += 1
             randInt = random.randrange(0, 4)    # will be 0, 1, 2, or 3
-            newX, newY = Wilson.movement[Wilson.directions[randInt]](x, y)
+            newX, newY = walker_base.WalkerBase.movement[Wilson.directions[randInt]](x, y)
             while (newX, newY) == (x, y) or not self._is_valid(newX, newY):
                 randInt = (randInt + 1) % len(Wilson.directions)
-                newX, newY = Wilson.movement[Wilson.directions[randInt]](x, y)
+                newX, newY = walker_base.WalkerBase.movement[Wilson.directions[randInt]](x, y)
 
             self._mark_direction(x, y, Wilson.directions[randInt])
 

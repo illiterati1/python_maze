@@ -7,6 +7,7 @@ import Tkinter as Tk
 from maze_constants import *
 import maze
 import wilson
+import depth_walker
 
 class MazeArtist(object):
     def __init__(self):
@@ -62,16 +63,15 @@ class MazeArtist(object):
             returnList.append(self.mazeCanvas.create_line(corners[i], corners[(i+1)%4], fill=NULL_FILL))
         return returnList
 
-    def paint_cell(self, cell, color, redraw):
+    def paint_cell(self, cell, color, redraw=True, changeWalls=True):
         """Takes a cell object and a color to paint it.
         Color must be something that Tkinter will recognize."""
         x, y = cell.get_position()
         self.mazeCanvas.itemconfigure(self.tkCells[x][y], fill=color, outline=color)
 
-        if self._is_congruent(x, y):
+        if changeWalls and self._is_congruent(x, y):
             y = self._transform(y)
             for direction, index in DIRECTIONS.items():
-
                 if cell.get_links()[direction]:  # The wall is down
                     fillColor = color
                 else:
@@ -86,6 +86,10 @@ if __name__ == '__main__':
     maze = maze.Maze(artist)
     walker = wilson.Wilson(maze)
     walker.build_maze()
+    del walker
+
+    walker = depth_walker.DepthWalker(maze)
+    walker.walk()
     Tk.mainloop()
 
     

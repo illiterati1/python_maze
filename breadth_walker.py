@@ -8,6 +8,7 @@ from maze_constants import *
 import walker_base
 
 SEARCH_COLOR = 'gray70'
+FOUND_COLOR = 'red'
 marker = object()
 
 class BreadthWalker(walker_base.ArrayWalker):
@@ -49,8 +50,6 @@ class BreadthWalker(walker_base.ArrayWalker):
                 self.queue.put(marker)
                 position = self._get_next()
                 continue
-            elif position is None:
-                raise ValueError('No solution to maze')
 
             self.paint(position, SEARCH_COLOR, redraw=hitMarker)
             hitMarker = False
@@ -61,3 +60,9 @@ class BreadthWalker(walker_base.ArrayWalker):
                     self.mark_this(newPosition, self._make_mark(OPPOSITES[direction]))
                     self.queue.put(newPosition)
             position = self._get_next()
+
+        while position is not self._maze.start():
+            self.paint(position, FOUND_COLOR)
+            direction = self.read_map(position).previous
+            position = self._maze._move(position, direction)
+        self.paint(position, FOUND_COLOR)

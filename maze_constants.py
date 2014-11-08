@@ -2,9 +2,9 @@
 Constant values for the maze program
 """
 
-# Suggest that these be equale to 1 mod the CELL_SIZE
-MAZE_HEIGHT = 601
-MAZE_WIDTH = 601
+# Suggest that these be equal to 1 mod the CELL_SIZE
+MAZE_HEIGHT = 801
+MAZE_WIDTH = 801
 
 CELL_SIZE = 10
 # includes space for walls, so subtract 2

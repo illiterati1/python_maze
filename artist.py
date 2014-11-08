@@ -89,9 +89,11 @@ if __name__ == '__main__':
     walker.build_maze()
     del walker
 
+    """
     walker = depth_walker.DepthWalker(maze)
     walker.walk()
     del walker
+    """
 
     walker = breadth_walker.BreadthWalker(maze)
     walker.walk()

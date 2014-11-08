@@ -75,15 +75,15 @@ class BreadthWalker(walker_base.ArrayWalker):
             self.paint(position, SEARCH_COLORS.color(), redraw=hitMarker)
             hitMarker = False
 
-            for direction in position.open_paths():
+            for direction in position.open_paths(self.read_map(position).previous):
                 newPosition = self._maze._move(position, direction)
                 if self.read_map(newPosition).previous is None:
-                    self.mark_this(newPosition, self._make_mark(OPPOSITES[direction]))
+                    self.mark_this(newPosition, self._make_mark(direction))
                     self.queue.put(newPosition)
             position = self._get_next()
 
         while position is not self._maze.start():
             self.paint(position, FOUND_COLOR)
-            direction = self.read_map(position).previous
+            direction = OPPOSITES[self.read_map(position).previous]
             position = self._maze._move(position, direction)
         self.paint(position, FOUND_COLOR)

@@ -7,9 +7,9 @@ import random
 import walker_base
 from maze_constants import *
 
-SEARCH_COLOR = 'blue'
+SEARCH_COLOR = 'light blue'
 FOUND_COLOR = 'red'
-VISITED_COLOR = 'grey'
+VISITED_COLOR = 'gray70'
 
 class DepthWalker(walker_base.ArrayWalker):
 
@@ -33,7 +33,7 @@ class DepthWalker(walker_base.ArrayWalker):
 
     def walk(self):
         if self._position is self._maze.finish():
-            self.paint(self._position, FOUND_COLOR, changeWalls=False)
+            self.paint(self._position, FOUND_COLOR)
             return True
         self.mark_current(self._visit)
         self.paint(self._position, SEARCH_COLOR)
@@ -47,7 +47,7 @@ class DepthWalker(walker_base.ArrayWalker):
                 found = self.walk()
                 self.move(OPPOSITES[direction])
                 if found:
-                    self.paint(self._position, FOUND_COLOR, changeWalls=False)
+                    self.paint(self._position, FOUND_COLOR)
                     return found
         self.paint(self._position, VISITED_COLOR)
         return False

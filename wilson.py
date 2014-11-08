@@ -91,7 +91,7 @@ class Wilson(walker_base.ArrayWalker):
 
         self._open(x, y)
         self._maze._join_cells(self._position, direction)
-        self._maze.paint(self._position, OPEN_FILL, False)
+        self._maze.paint(self._position, OPEN_FILL, redraw=False)
 
         self.move(direction)
         self._dig()

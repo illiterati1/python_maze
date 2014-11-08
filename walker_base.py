@@ -25,7 +25,7 @@ class WalkerBase(object):
 
     def paint(self, cell, color, redraw=True, changeWalls=True):
         """Paint the current cell the indicated color"""
-        self._maze.paint(self._position, color)
+        self._maze.paint(cell, color, redraw, changeWalls)
 
     def location(self):
         """Return (x, y) of current location in the maze"""

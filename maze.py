@@ -116,15 +116,15 @@ class Maze(object):
 
     def clean(self):
         """Return every cell to a default state"""
-        for row in self._cells:
-            for cell in row:
-                self.paint(cell, OPEN_FILL, False)
+        for col in self._cells:
+            for cell in col:
+                self.paint(cell, OPEN_FILL, redraw=False)
 
     def paint(self, cell, color, redraw=True, changeWalls=True):
         """Send a cell to the artist object to be painted on to the maze
         canvas.
         """
-        self._artist.paint_cell(cell, color, redraw)
+        self._artist.paint_cell(cell, color, redraw, changeWalls)
 
     def start(self):
         return self._cells[0][0]

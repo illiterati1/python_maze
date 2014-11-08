@@ -8,6 +8,7 @@ from maze_constants import *
 import maze
 import wilson
 import depth_walker
+import breadth_walker
 
 class MazeArtist(object):
     def __init__(self):
@@ -90,6 +91,8 @@ if __name__ == '__main__':
 
     walker = depth_walker.DepthWalker(maze)
     walker.walk()
-    Tk.mainloop()
+    del walker
 
-    
+    walker = breadth_walker.BreadthWalker(maze)
+    walker.walk()
+    Tk.mainloop()

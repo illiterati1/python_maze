@@ -2,8 +2,9 @@
 Constant values for the maze program
 """
 
-MAZE_HEIGHT = 801
-MAZE_WIDTH = 801
+# Suggest that these be equale to 1 mod the CELL_SIZE
+MAZE_HEIGHT = 601
+MAZE_WIDTH = 601
 
 CELL_SIZE = 10
 # includes space for walls, so subtract 2
@@ -23,6 +24,6 @@ OPPOSITES = {'north': 'south', 'east': 'west', 'south': 'north', \
 
 # Flags
 ## Wilson's algorithm
-RUSH_WILSON = False
-WILSON_SPEED = 1    # A parameter that controls how fast the wilson walker
+RUSH_WILSON = True
+WILSON_SPEED = 10    # A parameter that controls how fast the wilson walker
 # runs. Note: if RUSH_WILSON is True, SPEED is ignored

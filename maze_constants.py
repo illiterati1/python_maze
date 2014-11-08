@@ -22,4 +22,7 @@ OPPOSITES = {'north': 'south', 'east': 'west', 'south': 'north', \
              'west': 'east'}
 
 # Flags
+## Wilson's algorithm
 RUSH_WILSON = False
+WILSON_SPEED = 1    # A parameter that controls how fast the wilson walker
+# runs. Note: if RUSH_WILSON is True, SPEED is ignored

@@ -63,9 +63,11 @@ class Wilson(walker_base.ArrayWalker):
 
     def _plan(self, x, y):
         """Tries to find a route from a non-open cell back to an open one"""
+        counter = 0
         oldDir = -1
         while True:
-            self._maze.paint(self._maze._get_cell(x, y), PLAN_FILL)
+            self._maze.paint(self._maze._get_cell(x, y), PLAN_FILL, counter % 20 == 0)
+            counter += 1
             randInt = random.randrange(0, 4)    # will be 0, 1, 2, or 3
             newX, newY = Wilson.movement[Wilson.directions[randInt]](x, y)
             while (newX, newY) == (x, y) or not self._is_valid(newX, newY):
@@ -95,7 +97,7 @@ class Wilson(walker_base.ArrayWalker):
 
         self._open(x, y)
         self._maze._join_cells(self._position, direction)
-        self._maze.paint(self._position, OPEN_FILL)
+        self._maze.paint(self._position, OPEN_FILL, False)
 
         self.move(direction)
         self._dig()

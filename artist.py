@@ -24,7 +24,7 @@ class MazeArtist(object):
         self.tkWalls = [[self._plot_walls(x, y) \
                          for y in xrange(YCELLS)] \
                         for x in xrange(XCELLS)]
-
+        self.mazeCanvas.lift('corners')
         self.mazeCanvas.update_idletasks()
     
     def _transform(self, n):
@@ -58,6 +58,7 @@ class MazeArtist(object):
         bottomRight = (x + CELL_SIZE, y + CELL_SIZE)
         corners = [topLeft, topRight, bottomRight, bottomLeft]
         for i in xrange(4):
+            self.mazeCanvas.create_rectangle(corners[i], corners[i], fill=NULL_FILL, tag='corners', outline='')
             returnList.append(self.mazeCanvas.create_line(corners[i], corners[(i+1)%4], fill=NULL_FILL))
         return returnList
 
@@ -85,6 +86,6 @@ if __name__ == '__main__':
     maze = maze.Maze(artist)
     walker = wilson.Wilson(maze)
     walker.build_maze()
-    raw_input('')
+    Tk.mainloop()
 
     

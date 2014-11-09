@@ -107,3 +107,53 @@ class Wilson(walker_base.ArrayWalker):
                     self._plan(x, y)
                     self._position = self._maze._get_cell(x, y)
                     self._dig()
+
+
+class LoopyWilson(Wilson):
+    """A maze builder that will add loops to the maze"""
+
+    def _plan(self, x, y):
+        """Tries to find a route from a non-open cell back to an open one"""
+        while True:
+            randInt = random.randrange(0, 4)    # will be 0, 1, 2, or 3
+            newX, newY = walker_base.WalkerBase.movement[Wilson.directions[randInt]](x, y)
+            while (newX, newY) == (x, y) or not self._is_valid(newX, newY):
+                randInt = (randInt + 1) % len(Wilson.directions)
+                newX, newY = walker_base.WalkerBase.movement[Wilson.directions[randInt]](x, y)
+
+            self._mark_direction(x, y, Wilson.directions[randInt])
+
+            if self._is_open(newX, newY):   # success
+                return
+
+            x, y = newX, newY
+
+    def _dig(self):
+        """There should be a good path from the current position back to
+        the open part of the maze. This will then "dig" these cells open.
+        """
+
+        x, y = self._position.get_position()
+        direction = self._get_direction(x, y)
+        if self._is_open(x, y):
+            self._maze._join_cells(self._position, direction)
+            self._maze.paint(self._position, OPEN_FILL)
+            return
+
+        self._open(x, y)
+        self._maze._join_cells(self._position, direction)
+        self._maze.paint(self._position, OPEN_FILL, redraw=False)
+
+        self.move(direction)
+        self._dig()
+
+    def build_maze(self):
+        """Modifies the maze in place"""
+        self._open(0, 0)
+        self._maze.paint(self._position, OPEN_FILL)
+
+        for y in xrange(YCELLS):
+            for x in xrange(XCELLS):
+                self._plan(x, y)
+                self._position = self._maze._get_cell(x, y)
+                self._dig()

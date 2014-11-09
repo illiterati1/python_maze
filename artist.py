@@ -88,18 +88,13 @@ if __name__ == '__main__':
     maze = maze.Maze(artist)
     walker = wilson.Wilson(maze)
     walker.build_maze()
-    del walker
 
-    """
     walker = depth_walker.DepthWalker(maze)
     walker.walk()
-    del walker"""
 
-    """
     walker = breadth_walker.BreadthWalker(maze)
     walker.walk()
-    """
-
+    
     walker = deadend_filler.DeadendFiller(maze)
     walker.walk()
 

@@ -31,6 +31,9 @@ class Maze(object):
             """direction must be 'north', 'east', etc."""
             self._directions[direction] = True
 
+        def build_wall(self, direction):
+            self._directions[direction] = False
+
         def is_open(self, direction):
             """Checks whether the given direction is open"""
             return self._directions[direction]
@@ -55,6 +58,9 @@ class Maze(object):
 
         def is_hallway(self):
             return self._directions.values().count(True) == 2
+
+        def is_unbounded(self):
+            return self._directions.values().count(True) == 4
 
         def open_paths(self, inbound=None):
             """Returns a list of direction strings for random searches.
@@ -106,6 +112,10 @@ class Maze(object):
         self._clip(cell, direction).open_wall(Maze.opposite[direction])
         # The above line will return a WallError if an out of bounds cell
         # is used
+
+    def _unjoin_cells(self, cell, direction):
+        cell.build_wall(direction)
+        self._clip(cell, direction).build_wall(OPPOSITES[direction])
 
     def _move(self, cell, direction):
         """Movement with wall checking"""

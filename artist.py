@@ -86,7 +86,7 @@ class MazeArtist(object):
 if __name__ == '__main__':
     artist = MazeArtist()
     maze = maze.Maze(artist)
-    walker = wilson.Wilson(maze)
+    walker = wilson.LoopyWilson(maze)
     walker.build_maze()
 
     walker = depth_walker.DepthWalker(maze)

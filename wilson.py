@@ -59,7 +59,7 @@ class Wilson(walker_base.ArrayWalker):
         """Tries to find a route from a non-open cell back to an open one"""
         counter = 0
         while True:
-            if not RUSH_WILSON:
+            if not RUSH_WILSON:     # TODO: why paint before it's needed?
                 self._maze.paint(self._maze._get_cell(x, y), PLAN_FILL, counter % WILSON_SPEED == 0)
             counter += 1
             randInt = random.randrange(0, 4)    # will be 0, 1, 2, or 3
@@ -112,48 +112,22 @@ class Wilson(walker_base.ArrayWalker):
 class LoopyWilson(Wilson):
     """A maze builder that will add loops to the maze"""
 
-    def _plan(self, x, y):
-        """Tries to find a route from a non-open cell back to an open one"""
-        while True:
-            randInt = random.randrange(0, 4)    # will be 0, 1, 2, or 3
-            newX, newY = walker_base.WalkerBase.movement[Wilson.directions[randInt]](x, y)
-            while (newX, newY) == (x, y) or not self._is_valid(newX, newY):
-                randInt = (randInt + 1) % len(Wilson.directions)
-                newX, newY = walker_base.WalkerBase.movement[Wilson.directions[randInt]](x, y)
-
-            self._mark_direction(x, y, Wilson.directions[randInt])
-
-            if self._is_open(newX, newY):   # success
-                return
-
-            x, y = newX, newY
-
-    def _dig(self):
-        """There should be a good path from the current position back to
-        the open part of the maze. This will then "dig" these cells open.
-        """
-
-        x, y = self._position.get_position()
-        direction = self._get_direction(x, y)
-        if self._is_open(x, y):
-            self._maze._join_cells(self._position, direction)
-            self._maze.paint(self._position, OPEN_FILL)
-            return
-
-        self._open(x, y)
-        self._maze._join_cells(self._position, direction)
-        self._maze.paint(self._position, OPEN_FILL, redraw=False)
-
-        self.move(direction)
-        self._dig()
+    def _find_walls(self, cell):
+        directions = []
+        x, y = cell.get_position()
+        for direction, isOpen in cell.get_links().items():
+            if not isOpen:     # If there is a wall
+                newX, newY = walker_base.WalkerBase.movement[direction](x, y)
+                if self._is_valid(newX, newY):
+                    directions.append(direction)
+        return directions
 
     def build_maze(self):
-        """Modifies the maze in place"""
-        self._open(0, 0)
-        self._maze.paint(self._position, OPEN_FILL)
+        super(LoopyWilson, self).build_maze()
+        for col in self._maze._get_maze_array():
+            for cell in col:
+                if cell.is_deadend() and random.random() <= LOOP_PROB:
+                    direction = random.choice(self._find_walls(cell))
+                    self._maze._join_cells(cell, direction)
+                    self.paint(cell, OPEN_FILL)
 
-        for y in xrange(YCELLS):
-            for x in xrange(XCELLS):
-                self._plan(x, y)
-                self._position = self._maze._get_cell(x, y)
-                self._dig()

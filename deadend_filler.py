@@ -52,7 +52,6 @@ class DeadendFiller(walker_base.ArrayWalker):
         is reached"""
         path = None
         while self._is_deadend(position):
-            #raw_input('')
             path = self._find_paths(position, path)[0]
             self.mark_this(position, lambda node: node.fill())
             self.paint(position, FILL_COLOR)
@@ -66,3 +65,5 @@ class DeadendFiller(walker_base.ArrayWalker):
             for x in xrange(XCELLS):
                 current = self._maze._get_cell(x, y)
                 self._fill(current)
+
+# TODO: Make a blind alley filler subclass

@@ -11,24 +11,21 @@ import depth_walker
 import breadth_walker
 import deadend_filler
 
-class MazeArtist(object):
+class MazeArtist(Tk.Canvas):
     def __init__(self):
         self.master = Tk.Tk()
-        self.mazeCanvas = Tk.Canvas(self.master, \
-                                    height=MAZE_HEIGHT, width=MAZE_WIDTH)
-        self.mazeCanvas.pack()
+        Tk.Canvas.__init__(self, self.master, height=MAZE_HEIGHT, width=MAZE_WIDTH)
+        self.pack()
 
-        self.mazeCanvas.create_rectangle(1, 1, MAZE_WIDTH, MAZE_HEIGHT, \
-                                         outline='black')
+        self.create_rectangle(1, 1, MAZE_WIDTH, MAZE_HEIGHT, outline='black')
 
         self.tkCells = [[self._plot_cell(x, y) for y in xrange(YCELLS)] \
                         for x in xrange(XCELLS)]
 
-        self.tkWalls = [[self._plot_walls(x, y) \
-                         for y in xrange(YCELLS)] \
+        self.tkWalls = [[self._plot_walls(x, y) for y in xrange(YCELLS)] \
                         for x in xrange(XCELLS)]
-        self.mazeCanvas.lift('corners')
-        self.mazeCanvas.update_idletasks()
+        self.lift('corners')
+        self.update_idletasks()
     
     def _transform(self, n):
         return n / 2
@@ -44,8 +41,8 @@ class MazeArtist(object):
         topLeft = (x * CELL_SIZE + 2, y * CELL_SIZE + 2)
         bottomRight = (topLeft[0] + CELL_SIZE - 2, topLeft[1] + CELL_SIZE - 2)
 
-        return self.mazeCanvas.create_rectangle(topLeft, bottomRight,\
-                                                fill=NULL_FILL, outline=NULL_FILL)
+        return self.create_rectangle(topLeft, bottomRight, fill=NULL_FILL, \
+                                     outline=NULL_FILL)
 
     def _plot_walls(self, x, y):
         """Plot the four walls for a cell and return a list of the Tk IDs in the
@@ -61,15 +58,17 @@ class MazeArtist(object):
         bottomRight = (x + CELL_SIZE, y + CELL_SIZE)
         corners = [topLeft, topRight, bottomRight, bottomLeft]
         for i in xrange(4):
-            self.mazeCanvas.create_rectangle(corners[i], corners[i], fill=NULL_FILL, tag='corners', outline='')
-            returnList.append(self.mazeCanvas.create_line(corners[i], corners[(i+1)%4], fill=NULL_FILL))
+            self.create_rectangle(corners[i], corners[i], fill=NULL_FILL, \
+                                  tag='corners', outline='')
+            returnList.append(self.create_line(corners[i], \
+                              corners[(i+1)%4], fill=NULL_FILL))
         return returnList
 
     def paint_cell(self, cell, color, redraw=True, changeWalls=True):
         """Takes a cell object and a color to paint it.
         Color must be something that Tkinter will recognize."""
         x, y = cell.get_position()
-        self.mazeCanvas.itemconfigure(self.tkCells[x][y], fill=color, outline=color)
+        self.itemconfigure(self.tkCells[x][y], fill=color, outline=color)
 
         if changeWalls and self._is_congruent(x, y):
             y = self._transform(y)
@@ -78,10 +77,10 @@ class MazeArtist(object):
                     fillColor = color
                 else:
                     fillColor = NULL_FILL
-                self.mazeCanvas.itemconfigure(self.tkWalls[x][y][index], fill=fillColor)
+                self.itemconfigure(self.tkWalls[x][y][index], fill=fillColor)
 
         if redraw:
-            self.mazeCanvas.update_idletasks()
+            self.update_idletasks()
 
 if __name__ == '__main__':
     artist = MazeArtist()

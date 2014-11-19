@@ -5,7 +5,7 @@ Constant values for the maze program
 from sys import setrecursionlimit
 
 # Suggest that these be equal to 1 mod the CELL_SIZE
-MAZE_HEIGHT = 801
+MAZE_HEIGHT = 701
 MAZE_WIDTH = 801
 
 CELL_SIZE = 10

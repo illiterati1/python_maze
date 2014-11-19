@@ -14,7 +14,8 @@ import deadend_filler
 class MazeArtist(Tk.Canvas):
     def __init__(self):
         self.master = Tk.Tk()
-        Tk.Canvas.__init__(self, self.master, height=MAZE_HEIGHT, width=MAZE_WIDTH)
+        Tk.Canvas.__init__(self, self.master, height=MAZE_HEIGHT, \
+                           width=MAZE_WIDTH)
         self.pack()
 
         self.create_rectangle(1, 1, MAZE_WIDTH, MAZE_HEIGHT, outline='black')

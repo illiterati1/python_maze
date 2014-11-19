@@ -3,6 +3,8 @@ A class that runs Wilson's algorithm to draw the maze.
 Author: Brendan Wilson (no relation)
 """
 
+# This whole thing demands rabid rewriting, whenever I get around to it.
+
 import random
 import walker_base
 from maze_constants import *
@@ -122,12 +124,28 @@ class LoopyWilson(Wilson):
                     directions.append(direction)
         return directions
 
+    def _find_deadend(self, cell):
+        """Assumes that cell is a deadend"""
+        possibles = ['north', 'east', 'south', 'west']
+        links = cell.get_links()
+        x, y = cell.get_position()
+        for i in xrange(len(possibles)):
+            left = possibles[i-1]
+            center = possibles[i]
+            right = possibles[(i+1) % len(possibles)]
+            if not (links[left] or links[right] or links[center]):
+                newX, newY = walker_base.WalkerBase.movement[center](x, y)
+                if self._is_valid(newX, newY):
+                    return center
+        return None
+
     def build_maze(self):
         super(LoopyWilson, self).build_maze()
         for col in self._maze._get_maze_array():
             for cell in col:
                 if cell.is_deadend() and random.random() <= LOOP_PROB:
-                    direction = random.choice(self._find_walls(cell))
-                    self._maze._join_cells(cell, direction)
-                    self.paint(cell, OPEN_FILL)
+                    direction = self._find_deadend(cell)
+                    if direction is not None:
+                        self._maze._join_cells(cell, direction)
+                        self.paint(cell, OPEN_FILL)
 

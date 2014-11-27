@@ -10,6 +10,7 @@ from maze_pieces import Hall, Cell
 import wilson
 import depth_walker
 import breadth_walker
+import deadend_filler
 
 class Maze(Tk.Canvas):
 
@@ -42,6 +43,8 @@ class Maze(Tk.Canvas):
         self._walker = depth_walker.DepthWalker(self)
         self._walker.step()
         self._walker = breadth_walker.BreadthWalker(self)
+        self._walker.step()
+        self._walker = deadend_filler.DeadendFiller(self)
         self._walker.step()
 
     def _is_congruent(self, cell):

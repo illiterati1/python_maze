@@ -4,21 +4,23 @@ Author: Brendan Wilson
 """
 
 import time
-from random import choice
 import Tkinter as Tk
 from maze_constants import *
 from maze_pieces import Hall, Cell
+import wilson
 
 class Maze(Tk.Canvas):
 
     def __init__(self, frame):
         # artist should be a reference to the drawing class
         self._root = frame
-        self._cells = [[Cell(x, y, self) for y in xrange(YCELLS)] \
+        self._cells = [[Cell(x, y) for y in xrange(YCELLS)] \
                        for x in xrange(XCELLS)]
         for x in xrange(XCELLS-1):
-            for y in xrange(YCELLS-1):
+            for y in xrange(YCELLS):
                 self._link(self._cells[x][y], 'east', self._cells[x+1][y])
+        for x in xrange(XCELLS):
+            for y in xrange(YCELLS-1):
                 self._link(self._cells[x][y], 'south', self._cells[x][y+1])
 
         Tk.Canvas.__init__(self, self._root, height=MAZE_HEIGHT, \
@@ -29,10 +31,18 @@ class Maze(Tk.Canvas):
         for column in self._cells:
             for cell in column:
                 self._plot_cell(cell)
+                if self._is_congruent(cell):
+                    self._plot_walls(cell)
 
-        self.tkWalls = [[self._plot_walls(x, y) for y in xrange(YCELLS)] \
-                        for x in xrange(XCELLS)]
         self.lift('corners')
+
+        self._walker = wilson.Wilson(self).step()
+        self._run()
+
+    def _run(self):
+        if not self._walker.next():
+            return
+        self._root.after(10, self._run)
 
     def _is_congruent(self, cell):
         """This will make a checkerboard pattern for checking cell walls, so
@@ -63,11 +73,15 @@ class Maze(Tk.Canvas):
         topRight = (x + CELL_SIZE, y)
         bottomRight = (x + CELL_SIZE, y + CELL_SIZE)
         corners = [topLeft, topRight, bottomRight, bottomLeft]
-        for i in xrange(4):
-            self.create_rectangle(corners[i], corners[i], fill=NULL_FILL, \
+        for corner in corners:
+            self.create_rectangle(corner, corner, fill=NULL_FILL, \
                                   tag='corners', outline='')
-            ID = self.create_line(corners[i], corners[(i+1)%4], fill=NULL_FILL)
-            cell.get_hall(DIRECTIONS[i]).set_id(ID)
+
+        wallCoords = [(corners[i], corners[(i + 1) % 4]) for i in xrange(4)]
+        for direction, pair in zip(DIRECTIONS, wallCoords):
+            hall = cell.get_hall(direction)
+            if hall is not None:
+                hall.set_id(self.create_line(pair, fill=NULL_FILL))
 
     def _link(self, cellA, direction, cellB):
         """Build a hallway between cellA and cellB. Direction is A -> B."""
@@ -97,12 +111,12 @@ class Maze(Tk.Canvas):
         self.itemconfigure(cell.get_id(), fill=color, outline=color)
 
         # Paint the walls
-        for direction, index in DIRECTIONS.items():
-            if cell.get_links()[direction]:  # The wall is down
+        for hall in cell.get_halls():
+            if hall.is_open():  # The wall is down
                 fillColor = color
             else:
                 fillColor = NULL_FILL
-            self.itemconfigure(self.tkWalls[x][y][index], fill=fillColor)
+            self.itemconfigure(hall.get_id(), fill=fillColor)
 
     def start(self):
         return self._cells[0][0]
@@ -111,4 +125,5 @@ class Maze(Tk.Canvas):
         return self._cells[XCELLS-1][YCELLS-1]
 
 if __name__ == '__main__':
-    m = Maze(object)
+    m = Maze(Tk.Tk())
+    Tk.mainloop()

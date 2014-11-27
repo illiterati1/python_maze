@@ -7,7 +7,7 @@ import copy
 from maze_constants import *
 
 class WalkerBase(object):
-    """The grandparent of all walkers"""
+    """The parent of all walkers"""
 
     movement = {'north': (lambda x, y: (x, y-1)), \
                 'east': (lambda x, y: (x+1, y)), \
@@ -30,13 +30,9 @@ class WalkerBase(object):
         when the walker is finished."""
         raise NotImplementedError()
 
-    def paint(self, cell, color, redraw=True, changeWalls=True):
+    def paint(self, cell, color):
         """Paint the current cell the indicated color"""
-        self._maze.paint(cell, color, redraw, changeWalls)
-
-    def location(self):
-        """Return (x, y) of current location in the maze"""
-        return self._cell.get_position()
+        self._maze.paint(cell, color)
 
     def init_map(self, default):
         """Set each point on the map to some default value"""
@@ -60,5 +56,5 @@ class WalkerBase(object):
 
     def read_map(self, cell):
         """Return the info about the current cell"""
-        x, y = position.get_position()
+        x, y = cell.get_position()
         return self._map[x][y]

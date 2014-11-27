@@ -4,7 +4,6 @@ Author: Brendan Wilson (no relation)
 """
 
 # This whole thing demands rabid rewriting, whenever I get around to it.
-
 import random
 from walker_base import WalkerBase
 from maze_constants import *
@@ -14,103 +13,88 @@ class Wilson(WalkerBase):
     class Node(object):
         """Just a simple data container"""
 
-        __slots__ = 'isOpen', 'direction'
+        __slots__ = 'isOpen', 'next'
 
-        def __init__(self, isOpen, direction):
+        def __init__(self, isOpen, next):
             self.isOpen = isOpen
-            self.direction = direction
+            self.next = next
 
     def __init__(self, maze):
         super(Wilson, self).__init__(maze, maze.start(), self.Node(False, None))
 
-    def _is_valid(self, x, y):
-        """Make sure a cell is in bounds"""
-        return 0 <= x < XCELLS and 0 <= y < YCELLS
+    def _mark_next(self, cell, next):
+        """Mark the direction gone on the map. Direction is a cell."""
+        self.read_map(cell).next = next
 
-    def _mark_direction(self, x, y, direction):
-        """Mark the direction gone on the map"""
-        self._map[x][y].direction = direction
-
-    def _has_direction(self, x, y):
-        """Check to see if the node here has a direction other than None"""
-        return self._map[x][y].direction != None
-
-    def _get_direction(self, x, y):
-        return self._map[x][y].direction
-
-    def _is_open(self, cell):
-        """Check to see if the given node has been dug out already"""
-        return self.read_map(cell, lambda n: n.isOpen == True)
+    def _has_next(self, cell):
+        """Check to see if the node here has a next other than None"""
+        return self.read_map(cell).next is not None
 
     def _open(self, cell):
-        self.mark_this(cell, lambda n: n.isOpen = True)
+        self.read_map(cell).isOpen = True
 
-    def _erase_tracks(self, x, y):
-        """Follow the directions left and clean them up"""
-        direction = self._get_direction(x, y)
-        if direction == None:
+    def _is_open(self, cell):
+        return self.read_map(cell).isOpen
+
+    def _erase_tracks(self, cell):
+        """Follow the nexts and clean them up"""
+        next = self.read_map(cell).next
+        if next is None:
             return
-        self._mark_direction(x, y, None)
-        self._maze.paint(self._maze._get_cell(x, y), NULL_FILL, False)
-        newX, newY = walker_base.WalkerBase.movement[direction](x, y)
-        self._erase_tracks(newX, newY)
+        self._mark_next(cell, None)
+        self._maze.paint(cell, NULL_FILL)
+        self._erase_tracks(next)
 
-    def _plan(self, x, y):
+    def _plan(self, cell):
         """Tries to find a route from a non-open cell back to an open one"""
-        counter = 0
+        last = None
         while True:
-            if not RUSH_WILSON:     # TODO: why paint before it's needed?
-                self._maze.paint(self._maze._get_cell(x, y), PLAN_FILL, counter % WILSON_SPEED == 0)
-            counter += 1
-            randInt = random.randrange(0, 4)    # will be 0, 1, 2, or 3
-            newX, newY = walker_base.WalkerBase.movement[Wilson.directions[randInt]](x, y)
-            while (newX, newY) == (x, y) or not self._is_valid(newX, newY):
-                randInt = (randInt + 1) % len(Wilson.directions)
-                newX, newY = walker_base.WalkerBase.movement[Wilson.directions[randInt]](x, y)
+            if not RUSH_WILSON:
+                self._maze.paint(cell, PLAN_FILL)
+                yield True
 
-            self._mark_direction(x, y, Wilson.directions[randInt])
+            newCell = cell.random_path(checkWalls=False)
+            self._mark_next(cell, newCell)
 
-            if self._is_open(newX, newY):   # success
-                return
-            elif self._has_direction(newX, newY):
-                # We need to clip off a portion of the direction list
-                self._erase_tracks(newX, newY)
+            if self.read_map(newCell).isOpen:   # success
+                yield False
+            elif self._has_next(newCell):
+                # We need to clip off a portion of the path
+                self._erase_tracks(newCell)
 
-            x, y = newX, newY
+            last = cell
+            cell = newCell
 
     def _dig(self):
         """There should be a good path from the current position back to
         the open part of the maze. This will then "dig" these cells open.
         """
-
-        x, y = self._position.get_position()
-        direction = self._get_direction(x, y)
-        if self._is_open(x, y):
-            self._maze.paint(self._position, OPEN_FILL)
+        if self._is_open(self._cell):
+            self._maze.paint(self._cell, OPEN_FILL)
             return
 
-        self._open(x, y)
-        self._maze._join_cells(self._position, direction)
-        self._maze.paint(self._position, OPEN_FILL, redraw=False)
+        self._open(self._cell)
+        self._cell.open_by_cells(self.read_map(self._cell).next)
+        self._maze.paint(self._cell, OPEN_FILL)
 
-        self.move(direction)
-        self._maze._artist.after(0, self._dig())
+        self._cell = self.read_map(self._cell).next
+        self._dig()
 
     def step(self):
         """Modifies the maze in place. Yields True while there is still
         work to be done on the maze.
         """
-        self._open(maze.start())
+        self._open(self._maze.start())
         self._maze.paint(self._cell, OPEN_FILL)
 
         for y in xrange(YCELLS):
             for x in xrange(XCELLS):
-                current = self._maze.get_cell(x, y)
-                if is_open(self._cell):
-                    self._cell = current
-                    self._plan():
-                    yield True
-                    self._dig():
+                self._cell = self._maze.get_cell(x, y)
+                if not self._is_open(self._cell):
+                    planner = self._plan(self._cell)
+                    while planner.next():
+                        yield True
+                    self._dig()
                     yield True
         yield False
                 

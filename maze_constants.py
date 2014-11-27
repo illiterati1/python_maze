@@ -5,11 +5,11 @@ Constant values for the maze program
 from sys import setrecursionlimit
 
 # Suggest that these be equal to 1 mod the CELL_SIZE
-MAZE_HEIGHT = 701
-MAZE_WIDTH = 801
+MAZE_HEIGHT = 601
+MAZE_WIDTH = 601
 
 CELL_SIZE = 10
-# includes space for walls, so subtract 2
+# includes space for walls, so subtract 2 ultimately
 
 XCELLS = MAZE_WIDTH / CELL_SIZE
 YCELLS = MAZE_HEIGHT / CELL_SIZE

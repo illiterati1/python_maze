@@ -42,7 +42,7 @@ class Maze(Tk.Canvas):
     def _run(self):
         if not self._walker.next():
             return
-        self._root.after(10, self._run)
+        self._root.after(1, self._run)
 
     def _is_congruent(self, cell):
         """This will make a checkerboard pattern for checking cell walls, so

@@ -27,7 +27,5 @@ OPPOSITES = {'north': 'south', 'east': 'west', 'south': 'north', \
 
 # Flags
 ## Wilson's algorithm
-RUSH_WILSON = True
-WILSON_SPEED = 1000    # A parameter that controls how fast the wilson walker
-# runs. Note: if RUSH_WILSON is True, SPEED is ignored
+RUSH_WILSON = False
 LOOP_PROB = 0.5     # Chance for the loop builder to delete a wall at any cell

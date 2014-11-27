@@ -9,10 +9,10 @@ from maze_constants import *
 class WalkerBase(object):
     """The parent of all walkers"""
 
-    movement = {'north': (lambda x, y: (x, y-1)), \
+    """movement = {'north': (lambda x, y: (x, y-1)), \
                 'east': (lambda x, y: (x+1, y)), \
                 'south': (lambda x, y: (x, y+1)), \
-                'west': (lambda x, y: (x-1, y))}
+                'west': (lambda x, y: (x-1, y))}"""
 
     def __init__(self, maze, position, default=object):
         """Takes a cell object from the maze in question

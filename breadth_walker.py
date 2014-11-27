@@ -6,6 +6,7 @@ Author: Brendan Wilson
 from Queue import Queue
 from maze_constants import *
 import walker_base
+from maze_pieces import MazeError
 
 class SearchColors(object):
     colors = ['gray80', 'gray78', 'gray76', 'gray74', 'gray72', 'gray70', \
@@ -31,7 +32,7 @@ SEARCH_COLORS = SearchColors()
 FOUND_COLOR = 'red'
 marker = object()
 
-class BreadthWalker(walker_base.ArrayWalker):
+class BreadthWalker(walker_base.WalkerBase):
 
     class Node(object):
         __slots__ = 'previous'
@@ -43,7 +44,7 @@ class BreadthWalker(walker_base.ArrayWalker):
         super(BreadthWalker, self).__init__(maze, maze.start(), self.Node())
         self._maze.clean()
         self.queue = Queue()
-        self.queue.put(self._position)
+        self.queue.put(self._cell)
         self.queue.put(marker)
 
     def _get_next(self):
@@ -55,35 +56,35 @@ class BreadthWalker(walker_base.ArrayWalker):
         else:
             return self.queue.get()
 
-    def _make_mark(self, direction):
+    def _make_mark(self, fromCell, toCell):
         """A helper function to make marks on the map"""
-        def mark(node):
-            node.previous = direction
-        return mark
+        self.read_map(toCell).previous = fromCell
 
-    def walk(self):
-        position = self._get_next()
+    def step(self):
+        cell = self._get_next()
         hitMarker = False
-        while position is not self._maze.finish():
-            if position is marker:
+        while cell is not self._maze.finish():
+            if cell is marker:
                 hitMarker = True
                 self.queue.put(marker)
-                position = self._get_next()
+                cell = self._get_next()
                 SEARCH_COLORS.next()
                 continue
 
-            self.paint(position, SEARCH_COLORS.color(), redraw=hitMarker)
-            hitMarker = False
+            self._maze.paint(cell, SEARCH_COLORS.color())
+            if hitMarker:
+                self._maze.update_idletasks()
+                hitMarker = False
 
-            for direction in position.open_paths(self.read_map(position).previous):
-                newPosition = self._maze._move(position, direction)
-                if self.read_map(newPosition).previous is None:
-                    self.mark_this(newPosition, self._make_mark(direction))
-                    self.queue.put(newPosition)
-            position = self._get_next()
+            for newCell in cell.get_paths(last=self.read_map(cell).previous):
+                if self.read_map(newCell).previous is None:
+                    # Only worry about unvisited cells
+                    self._make_mark(cell, newCell)
+                    self.queue.put(newCell)
+            cell = self._get_next()
 
-        while position is not self._maze.start():
-            self.paint(position, FOUND_COLOR)
-            direction = OPPOSITES[self.read_map(position).previous]
-            position = self._maze._move(position, direction)
-        self.paint(position, FOUND_COLOR)
+        while cell is not None:
+            # Start cell should point to None
+            self._maze.paint(cell, FOUND_COLOR)
+            cell = self.read_map(cell).previous
+        self._maze.update_idletasks()

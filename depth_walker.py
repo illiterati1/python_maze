@@ -11,7 +11,7 @@ SEARCH_COLOR = 'light blue'
 FOUND_COLOR = 'red'
 VISITED_COLOR = 'gray70'
 
-class DepthWalker(walker_base.ArrayWalker):
+class DepthWalker(walker_base.WalkerBase):
 
     class Node(object):
 
@@ -31,23 +31,26 @@ class DepthWalker(walker_base.ArrayWalker):
     def _unvisit(self, node):
         node.visited = False
 
-    def walk(self, last=None):
-        if self._position is self._maze.finish():
-            self.paint(self._position, FOUND_COLOR)
+    def step(self, cell=None, last=None):
+        if cell is None:
+            cell = self._maze.start()
+        if cell is self._maze.finish():
+            self.paint(cell, FOUND_COLOR)
             return True
+
         self.mark_current(self._visit)
-        self.paint(self._position, SEARCH_COLOR)
+        self.paint(cell, SEARCH_COLOR)
+        self._maze.update_idletasks()
 
-        paths = self._position.open_paths(last)
+        paths = cell.get_paths(last)
 
-        for direction in paths:
-            position = self._maze._move(self._position, direction)
-            if not self.read_map(position).visited:
-                self.move(direction)
-                found = self.walk(direction)
-                self.move(OPPOSITES[direction])
+        for newCell in paths:
+            if not self.read_map(newCell).visited:
+                found = self.step(newCell, cell)
                 if found:
-                    self.paint(self._position, FOUND_COLOR)
+                    self.paint(cell, FOUND_COLOR)
+                    if cell is self._maze.start():
+                        self._maze.update_idletasks()
                     return found
-        self.paint(self._position, VISITED_COLOR)
+        self.paint(cell, VISITED_COLOR)
         return False

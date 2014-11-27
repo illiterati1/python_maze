@@ -11,7 +11,6 @@ from maze_constants import *
 class Wilson(WalkerBase):
 
     class Node(object):
-        """Just a simple data container"""
 
         __slots__ = 'isOpen', 'next'
 
@@ -51,13 +50,12 @@ class Wilson(WalkerBase):
         while True:
             if not RUSH_WILSON:
                 self._maze.paint(cell, PLAN_FILL)
-                yield True
 
-            newCell = cell.random_path(checkWalls=False)
+            newCell = cell.random_path(last, checkWalls=False)
             self._mark_next(cell, newCell)
 
             if self.read_map(newCell).isOpen:   # success
-                yield False
+                return
             elif self._has_next(newCell):
                 # We need to clip off a portion of the path
                 self._erase_tracks(newCell)
@@ -86,19 +84,16 @@ class Wilson(WalkerBase):
         """
         self._open(self._maze.start())
         self._maze.paint(self._cell, OPEN_FILL)
+        self._maze.update_idletasks()
 
         for y in xrange(YCELLS):
             for x in xrange(XCELLS):
-                self._cell = self._maze.get_cell(x, y)
+                if self._cell is not self._maze.get_cell(x, y):
+                    self._cell = self._maze.get_cell(x, y)
                 if not self._is_open(self._cell):
-                    planner = self._plan(self._cell)
-                    while planner.next():
-                        yield True
+                    self._plan(self._cell)
                     self._dig()
-                    yield True
-        yield False
-                
-
+                    self._maze.update_idletasks()
 
 class LoopyWilson(Wilson):
     """A maze builder that will add loops to the maze"""

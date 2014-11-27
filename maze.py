@@ -8,12 +8,13 @@ import Tkinter as Tk
 from maze_constants import *
 from maze_pieces import Hall, Cell
 import wilson
+import depth_walker
+import breadth_walker
 
 class Maze(Tk.Canvas):
 
     def __init__(self, frame):
-        # artist should be a reference to the drawing class
-        self._root = frame
+        self._frame = frame
         self._cells = [[Cell(x, y) for y in xrange(YCELLS)] \
                        for x in xrange(XCELLS)]
         for x in xrange(XCELLS-1):
@@ -23,7 +24,7 @@ class Maze(Tk.Canvas):
             for y in xrange(YCELLS-1):
                 self._link(self._cells[x][y], 'south', self._cells[x][y+1])
 
-        Tk.Canvas.__init__(self, self._root, height=MAZE_HEIGHT, \
+        Tk.Canvas.__init__(self, self._frame, height=MAZE_HEIGHT, \
                            width=MAZE_WIDTH, background='black', \
                            highlightthickness=0)
         self.pack()
@@ -36,13 +37,12 @@ class Maze(Tk.Canvas):
 
         self.lift('corners')
 
-        self._walker = wilson.Wilson(self).step()
-        self._run()
-
-    def _run(self):
-        if not self._walker.next():
-            return
-        self._root.after(1, self._run)
+        self._walker = wilson.Wilson(self)
+        self._walker.step()
+        self._walker = depth_walker.DepthWalker(self)
+        self._walker.step()
+        self._walker = breadth_walker.BreadthWalker(self)
+        self._walker.step()
 
     def _is_congruent(self, cell):
         """This will make a checkerboard pattern for checking cell walls, so
@@ -102,9 +102,10 @@ class Maze(Tk.Canvas):
         """Return every cell to a default color"""
         for col in self._cells:
             for cell in col:
-                self.paint(cell, OPEN_FILL, redraw=False)
+                self.paint(cell, OPEN_FILL)
+        self.update_idletasks()
 
-    def paint(self, cell, color, changeWalls=True):
+    def paint(self, cell, color):
         """Takes a cell object and a color to paint it.
         Color must be something that Tkinter will recognize."""
         x, y = cell.get_position()

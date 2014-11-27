@@ -6,10 +6,10 @@ Author: Brendan Wilson (no relation)
 # This whole thing demands rabid rewriting, whenever I get around to it.
 
 import random
-import walker_base
+from walker_base import WalkerBase
 from maze_constants import *
 
-class Wilson(walker_base.ArrayWalker):
+class Wilson(WalkerBase):
 
     class Node(object):
         """Just a simple data container"""
@@ -19,8 +19,6 @@ class Wilson(walker_base.ArrayWalker):
         def __init__(self, isOpen, direction):
             self.isOpen = isOpen
             self.direction = direction
-
-    directions = walker_base.WalkerBase.movement.keys()
 
     def __init__(self, maze):
         super(Wilson, self).__init__(maze, maze.start(), self.Node(False, None))
@@ -40,12 +38,12 @@ class Wilson(walker_base.ArrayWalker):
     def _get_direction(self, x, y):
         return self._map[x][y].direction
 
-    def _is_open(self, x, y):
+    def _is_open(self, cell):
         """Check to see if the given node has been dug out already"""
-        return self._map[x][y].isOpen
+        return self.read_map(cell, lambda n: n.isOpen == True)
 
-    def _open(self, x, y):
-        self._map[x][y].isOpen = True
+    def _open(self, cell):
+        self.mark_this(cell, lambda n: n.isOpen = True)
 
     def _erase_tracks(self, x, y):
         """Follow the directions left and clean them up"""
@@ -96,19 +94,26 @@ class Wilson(walker_base.ArrayWalker):
         self._maze.paint(self._position, OPEN_FILL, redraw=False)
 
         self.move(direction)
-        self._dig()
+        self._maze._artist.after(0, self._dig())
 
-    def build_maze(self):
-        """Modifies the maze in place"""
-        self._open(0, 0)
-        self._maze.paint(self._position, OPEN_FILL)
+    def step(self):
+        """Modifies the maze in place. Yields True while there is still
+        work to be done on the maze.
+        """
+        self._open(maze.start())
+        self._maze.paint(self._cell, OPEN_FILL)
 
         for y in xrange(YCELLS):
             for x in xrange(XCELLS):
-                if not self._map[x][y].isOpen:
-                    self._plan(x, y)
-                    self._position = self._maze._get_cell(x, y)
-                    self._dig()
+                current = self._maze.get_cell(x, y)
+                if is_open(self._cell):
+                    self._cell = current
+                    self._plan():
+                    yield True
+                    self._dig():
+                    yield True
+        yield False
+                
 
 
 class LoopyWilson(Wilson):

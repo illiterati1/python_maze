@@ -21,7 +21,7 @@ PLAN_FILL = 'grey'
 OPEN_FILL = 'white'
 
 # Helpers
-DIRECTIONS = {'north': 0, 'east': 1, 'south': 2, 'west': 3}
+DIRECTIONS = ['north', 'east', 'south', 'west']
 OPPOSITES = {'north': 'south', 'east': 'west', 'south': 'north', \
              'west': 'east'}
 

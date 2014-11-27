@@ -14,14 +14,21 @@ class WalkerBase(object):
                 'south': (lambda x, y: (x, y+1)), \
                 'west': (lambda x, y: (x-1, y))}
 
-    def __init__(self, maze, position):
-        """Takes a cell object from the maze in question"""
+    def __init__(self, maze, position, default=object):
+        """Takes a cell object from the maze in question
+        NOTE: default must not be object if you want a map of any kind.
+        """
         self._maze = maze
-        self._position = position   # This is a cell object
+        self._cell = position   # This is a cell object
+        if default is not object:
+            self._map = [[copy.copy(default) for y in xrange(YCELLS)] \
+                         for x in xrange(XCELLS)]
 
-    def move(self, direction):
-        """Move in the indicated direction"""
-        self._position = self._maze._move(self._position, direction)
+    def step(self):
+        """An abstract method to use with Tkinter so that the walker returns
+        control back to the main loop every so often. Should return False
+        when the walker is finished."""
+        raise NotImplementedError()
 
     def paint(self, cell, color, redraw=True, changeWalls=True):
         """Paint the current cell the indicated color"""
@@ -29,16 +36,7 @@ class WalkerBase(object):
 
     def location(self):
         """Return (x, y) of current location in the maze"""
-        return self._position.get_position()
-
-class ArrayWalker(WalkerBase):
-    """A maze walker that stores it's knowledge of the maze in an array
-    that has a one-to-one correspondence to the maze."""
-
-    def __init__(self, maze, position, default):
-        super(ArrayWalker, self).__init__(maze, position)
-        self._map = [[copy.copy(default) for y in xrange(YCELLS)] \
-                     for x in xrange(XCELLS)]
+        return self._cell.get_position()
 
     def init_map(self, default):
         """Set each point on the map to some default value"""
@@ -49,34 +47,18 @@ class ArrayWalker(WalkerBase):
     def mark_current(self, mark):
         """Mark the location with whatever data the child class needs.
         mark() should be a function that operates on the cell."""
-        self.mark_this(self._position, mark)
+        self.mark_this(self._cell, mark)
 
     def mark_this(self, cell, mark):
         """Mark the cell indicated. Cell must be a cell object."""
         x, y = cell.get_position()
         mark(self._map[x][y])
 
-    def read_map(self, position):
+    def read_current(self):
+        """Get the map data for the current cell."""
+        return self.read_map(self._cell)
+
+    def read_map(self, cell):
         """Return the info about the current cell"""
         x, y = position.get_position()
         return self._map[x][y]
-
-class LinkWalker(WalkerBase):
-    """A walker class that keeps information about links between junctions.
-    Only used for the Tremaux algorithm."""
-
-    class Node(object):
-        """An object for storing the knowledge of the LinkWalkers.
-        Little more than a structure."""
-
-        __slots__ = 'cell', 'north', 'east', 'south', 'west'
-
-        def __init__(self, cell, north=None, east=None, south=None, west=None):
-            self.cell = cell
-            self.north = north
-            self.east = east
-            self.south = south
-            self.west = west
-
-    def __init__(self, maze, position):
-        super(LinkWalker, self).__init__(maze, position)

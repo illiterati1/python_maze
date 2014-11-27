@@ -4,141 +4,105 @@ Author: Brendan Wilson
 """
 
 import time
+from random import choice
+import Tkinter as Tk
 from maze_constants import *
+from maze_pieces import Hall, Cell
 
-class WallError(Exception):
-    def __init__(self, error):
-        self.message = error
+class Maze(Tk.Canvas):
 
-class Maze(object):
-
-    class Cell(object):
-        """north, east, south, and west will be references to other Cells.
-        This class will probably just be passed in to the drawing
-        function to deal with displaying the maze."""
-
-        __slots__ = '_directions', '_xLoc', '_yLoc', '_Tk_id', '_maze'
-
-        def __init__(self, x, y, maze, \
-                     north=False, east=False, south=False, west=False):
-            self._maze = maze
-            self._xLoc = x  # x and y are cell numbers, not pixel numbers
-            self._yLoc = y
-            self._directions = {'north': north, 'east': east, \
-                                'south': south, 'west': west}
-
-        def open_wall(self, direction):
-            """direction must be 'north', 'east', etc."""
-            self._directions[direction] = True
-
-        def build_wall(self, direction):
-            self._directions[direction] = False
-
-        def is_open(self, direction):
-            """Checks whether the given direction is open"""
-            return self._directions[direction]
-
-        def get_position(self):
-            """Return the x, y position of the cell as a tuple"""
-            return self._xLoc, self._yLoc
-
-        def get_links(self):
-            """Returns the entire direction list"""
-            return self._directions
-
-        def is_junction(self):
-            return self._directions.values().count(True) > 2
-
-        def is_deadend(self):
-            return self._directions.values().count(True) == 1
-
-        def is_isolated(self):
-            """For determining if the cell has no connections"""
-            return self._directions.values().count(True) == 0
-
-        def is_hallway(self):
-            return self._directions.values().count(True) == 2
-
-        def is_unbounded(self):
-            return self._directions.values().count(True) == 4
-
-        def open_paths(self, inbound=None):
-            """Returns a list of direction strings for random searches.
-            indound is the direction the walker just came from; 
-            it will be swapped and omitted.
-            """
-            inbound = OPPOSITES.get(inbound)
-            openList = []
-            for direction in self._directions.keys():
-                if self._directions[direction] and direction is not inbound:
-                    openList.append(direction)
-            return openList
-
-    movement = {'north': (lambda x, y: (x, y-1)),
-                'east': (lambda x, y: (x+1, y)),
-                'south': (lambda x, y: (x, y+1)),
-                'west': (lambda x, y: (x-1, y))}
-
-    opposite = {'north': 'south', 'east': 'west', 'south': 'north', \
-                'west': 'east'}
-
-    def __init__(self, artist):
+    def __init__(self, frame):
         # artist should be a reference to the drawing class
-        self._artist = artist
-        self._cells = [[self.Cell(x, y, self) \
-                        for y in xrange(YCELLS)] \
-                        for x in xrange(XCELLS)]
+        self._root = frame
+        self._cells = [[Cell(x, y, self) for y in xrange(YCELLS)] \
+                       for x in xrange(XCELLS)]
+        for x in xrange(XCELLS-1):
+            for y in xrange(YCELLS-1):
+                self._link(self._cells[x][y], 'east', self._cells[x+1][y])
+                self._link(self._cells[x][y], 'south', self._cells[x][y+1])
 
-    def _get_cell(self, x, y):
+        Tk.Canvas.__init__(self, self._root, height=MAZE_HEIGHT, \
+                           width=MAZE_WIDTH, background='black', \
+                           highlightthickness=0)
+        self.pack()
+
+        for column in self._cells:
+            for cell in column:
+                self._plot_cell(cell)
+
+        self.tkWalls = [[self._plot_walls(x, y) for y in xrange(YCELLS)] \
+                        for x in xrange(XCELLS)]
+        self.lift('corners')
+
+    def _is_congruent(self, cell):
+        """This will make a checkerboard pattern for checking cell walls, so
+        we aren't drawing the same wall twice
+        """
+        x, y = cell.get_position()
+        return (x % 2) == (y % 2)
+
+    def _plot_cell(self, cell):
+        """Make a rect on the canvas the size of a cell, and set the cell's
+        tk id.
+        """
+        x, y = cell.get_position()
+        topLeft = (x * CELL_SIZE + 2, y * CELL_SIZE + 2)
+        bottomRight = (topLeft[0] + CELL_SIZE - 2, topLeft[1] + CELL_SIZE - 2)
+        cell.set_id(self.create_rectangle(topLeft, bottomRight, \
+                                          fill=NULL_FILL, outline=NULL_FILL))
+
+    def _plot_walls(self, cell):
+        """Plot the four walls for a cell and set the hall tk ids."""
+        x, y = cell.get_position()
+        #y = 2 * y + (0 if x % 2 == 0 else 1)
+        x = (x * CELL_SIZE) + 1
+        y = (y * CELL_SIZE) + 1
+
+        topLeft = (x, y)
+        bottomLeft = (x, y + CELL_SIZE)
+        topRight = (x + CELL_SIZE, y)
+        bottomRight = (x + CELL_SIZE, y + CELL_SIZE)
+        corners = [topLeft, topRight, bottomRight, bottomLeft]
+        for i in xrange(4):
+            self.create_rectangle(corners[i], corners[i], fill=NULL_FILL, \
+                                  tag='corners', outline='')
+            ID = self.create_line(corners[i], corners[(i+1)%4], fill=NULL_FILL)
+            cell.get_hall(DIRECTIONS[i]).set_id(ID)
+
+    def _link(self, cellA, direction, cellB):
+        """Build a hallway between cellA and cellB. Direction is A -> B."""
+        hall = Hall(cellA, cellB)
+        cellA.add_hall(direction, hall)
+        cellB.add_hall(OPPOSITES[direction], hall)
+
+    def get_cell(self, x, y):
         """Returns the cell at position x, y.
         x and y are in terms of cell numbers, not pixels"""
         return self._cells[x][y]
 
-    def _clip(self, cell, direction):
-        """Returns the cell in the given direction, regardless of walls.
-        Raises WallError if cell is out of bounds."""
-        currentX, currentY = cell.get_position()
-        newX, newY = Maze.movement[direction](currentX, currentY)
-        if newX < 0 or newX >= XCELLS or newY < 0 or newY >= YCELLS:
-           raise WallError('Out of bounds')
-        return self._get_cell(newX, newY) 
-
-
-    def _join_cells(self, cell, direction):
-        """Opens the wall between the cell given and the one in the
-        given direction.
-        """
-        cell.open_wall(direction)
-        self._clip(cell, direction).open_wall(Maze.opposite[direction])
-        # The above line will return a WallError if an out of bounds cell
-        # is used
-
-    def _unjoin_cells(self, cell, direction):
-        cell.build_wall(direction)
-        self._clip(cell, direction).build_wall(OPPOSITES[direction])
-
-    def _move(self, cell, direction):
-        """Movement with wall checking"""
-        if cell.is_open(direction):
-            return self._clip(cell, direction)
-        else:
-            raise WallError('There is a wall there')
-
-    def _get_maze_array(self):
+    def get_maze_array(self):
         """Return the entire array; useful for certain walking functions"""
         return self._cells
 
     def clean(self):
-        """Return every cell to a default state"""
+        """Return every cell to a default color"""
         for col in self._cells:
             for cell in col:
                 self.paint(cell, OPEN_FILL, redraw=False)
 
-    def paint(self, cell, color, redraw=True, changeWalls=True):
-        """Send a cell to the artist object to be painted on to the maze
-        canvas.
-        """
-        self._artist.paint_cell(cell, color, redraw, changeWalls)
+    def paint(self, cell, color, changeWalls=True):
+        """Takes a cell object and a color to paint it.
+        Color must be something that Tkinter will recognize."""
+        x, y = cell.get_position()
+        self.itemconfigure(cell.get_id(), fill=color, outline=color)
+
+        # Paint the walls
+        for direction, index in DIRECTIONS.items():
+            if cell.get_links()[direction]:  # The wall is down
+                fillColor = color
+            else:
+                fillColor = NULL_FILL
+            self.itemconfigure(self.tkWalls[x][y][index], fill=fillColor)
 
     def start(self):
         return self._cells[0][0]
@@ -147,5 +111,4 @@ class Maze(object):
         return self._cells[XCELLS-1][YCELLS-1]
 
 if __name__ == '__main__':
-    t = Maze.Cell(0, 0, None, True, False, True, True)
-    print t.open_paths('south')
+    m = Maze(object)

@@ -57,6 +57,7 @@ class Wilson(WalkerBase):
         while True:
             if not RUSH_WILSON:
                 self._maze.paint(cell, PLAN_FILL)
+                self._maze.update_idletasks()
 
             newCell = cell.random_path(last, checkWalls=False)
             self._mark_next(cell, newCell)

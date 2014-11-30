@@ -7,8 +7,8 @@ from sys import setrecursionlimit
 DELAY = 1
 
 # Suggest that these be equal to 1 mod the CELL_SIZE
-MAZE_HEIGHT = 701
-MAZE_WIDTH = 701
+MAZE_HEIGHT = 702
+MAZE_WIDTH = 702
 
 CELL_SIZE = 10
 # includes space for walls, so subtract 2 ultimately

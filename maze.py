@@ -7,10 +7,10 @@ import time
 import Tkinter as Tk
 from maze_constants import *
 from maze_pieces import Hall, Cell
-import wilson
-import depth_walker
-import breadth_walker
-import deadend_filler
+from wilson import Wilson
+from depth_walker import DepthWalker
+from breadth_walker import BreadthWalker
+from deadend_filler import DeadendFiller
 
 class Maze(Tk.Canvas):
 
@@ -28,6 +28,7 @@ class Maze(Tk.Canvas):
         Tk.Canvas.__init__(self, self._frame, height=MAZE_HEIGHT, \
                            width=MAZE_WIDTH, background='black', \
                            highlightthickness=0)
+
         self.pack()
 
         for column in self._cells:
@@ -37,15 +38,24 @@ class Maze(Tk.Canvas):
                     self._plot_walls(cell)
 
         self.lift('corners')
+        self.update_idletasks()
 
-        self._walker = wilson.Wilson(self)
-        self._walker.step()
-        self._walker = depth_walker.DepthWalker(self)
-        self._walker.step()
+        self.after(DELAY, self.run, Wilson(self))
+
+        #self.after(DELAY, self.run, depth_walker.DepthWalker(self))
+        """
         self._walker = breadth_walker.BreadthWalker(self)
         self._walker.step()
         self._walker = deadend_filler.DeadendFiller(self)
-        self._walker.step()
+        self._walker.step() """
+
+    def run(self, walker):
+        if not walker.is_done():
+            walker.step()
+            #self.update_idletasks()
+            self.after(DELAY, self.run, walker)
+        else:
+            self.run(DepthWalker(self))
 
     def _is_congruent(self, cell):
         """This will make a checkerboard pattern for checking cell walls, so
@@ -67,7 +77,6 @@ class Maze(Tk.Canvas):
     def _plot_walls(self, cell):
         """Plot the four walls for a cell and set the hall tk ids."""
         x, y = cell.get_position()
-        #y = 2 * y + (0 if x % 2 == 0 else 1)
         x = (x * CELL_SIZE) + 1
         y = (y * CELL_SIZE) + 1
 
@@ -129,5 +138,6 @@ class Maze(Tk.Canvas):
         return self._cells[XCELLS-1][YCELLS-1]
 
 if __name__ == '__main__':
-    m = Maze(Tk.Tk())
-    Tk.mainloop()
+    root = Tk.Tk()
+    m = Maze(root)
+    root.mainloop()

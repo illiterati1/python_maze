@@ -9,20 +9,19 @@ from maze_constants import *
 class WalkerBase(object):
     """The parent of all walkers"""
 
-    """movement = {'north': (lambda x, y: (x, y-1)), \
-                'east': (lambda x, y: (x+1, y)), \
-                'south': (lambda x, y: (x, y+1)), \
-                'west': (lambda x, y: (x-1, y))}"""
-
     def __init__(self, maze, position, default=object):
         """Takes a cell object from the maze in question
         NOTE: default must not be object if you want a map of any kind.
         """
+        self._isDone = False
         self._maze = maze
         self._cell = position   # This is a cell object
         if default is not object:
             self._map = [[copy.copy(default) for y in xrange(YCELLS)] \
                          for x in xrange(XCELLS)]
+
+    def is_done(self):
+        return self._isDone
 
     def step(self):
         """An abstract method to use with Tkinter so that the walker returns
@@ -40,6 +39,7 @@ class WalkerBase(object):
             for col in xrange(len(self._map[row])):
                 self._map[row][col] = copy.copy(default)
 
+    # The next three are depracated
     def mark_current(self, mark):
         """Mark the location with whatever data the child class needs.
         mark() should be a function that operates on the cell."""

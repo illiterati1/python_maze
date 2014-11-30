@@ -113,7 +113,7 @@ class Cell(Piece):
         return self._xLoc, self._yLoc
 
     def get_links(self):
-        """Returns the entire direction list"""
+        """Returns the entire direction dict"""
         return self._paths
 
     def get_paths(self, last=None, checkWalls=True, returnOpen=True):
@@ -146,11 +146,11 @@ class Cell(Piece):
             if otherCell is hall.opposite(self, False):
                 hall.open_wall()
                 return
+        print self, otherCell
         raise MazeError("These two cells don't touch")
 
 class MazeError(Exception):
-    def __init__(self, error):
-        self.message = error
+    pass
 
 if __name__ == '__main__':
     a = Cell(0, 0)

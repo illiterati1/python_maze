@@ -15,42 +15,40 @@ class DepthWalker(walker_base.WalkerBase):
 
     class Node(object):
 
-        __slots__ = 'visited'
+        __slots__ = 'visited', 'parent'
 
         def __init__(self, visited):
             self.visited = visited
+            self.parent = None
 
     def __init__(self, maze):
         super(DepthWalker, self).__init__(maze, maze.start(), self.Node(False))
         self._maze.clean()
-        self.mark_current(self._visit)
+        self.read_map(self._cell).visited = True
+        self._stack = [self._cell]
 
-    def _visit(self, node):
-        node.visited = True
+    def step(self):
+        current = self._stack[-1]
+        self.paint(current, SEARCH_COLOR)
+        self.read_map(current).visited = True
 
-    def _unvisit(self, node):
-        node.visited = False
+        if current is self._maze.finish():
+            self._isDone = True
+            while current is not None:
+                self.paint(current, FOUND_COLOR)
+                current = self.read_map(current).parent
+            return
 
-    def step(self, cell=None, last=None):
-        if cell is None:
-            cell = self._maze.start()
-        if cell is self._maze.finish():
-            self.paint(cell, FOUND_COLOR)
-            return True
+        paths = current.get_paths(last=self.read_map(current).parent)
+        paths = filter((lambda c: not self.read_map(c).visited), paths)
+        random.shuffle(paths)   # Make the path selection random
 
-        self.mark_current(self._visit)
-        self.paint(cell, SEARCH_COLOR)
-        self._maze.update_idletasks()
+        if len(paths) == 0:
+            # We've found a deadend essentially
+            self.paint(current, VISITED_COLOR)
+            self._stack.pop()
+            return
 
-        paths = cell.get_paths(last)
-
-        for newCell in paths:
-            if not self.read_map(newCell).visited:
-                found = self.step(newCell, cell)
-                if found:
-                    self.paint(cell, FOUND_COLOR)
-                    if cell is self._maze.start():
-                        self._maze.update_idletasks()
-                    return found
-        self.paint(cell, VISITED_COLOR)
-        return False
+        for cell in paths:
+            self.read_map(cell).parent = current
+            self._stack.append(cell)

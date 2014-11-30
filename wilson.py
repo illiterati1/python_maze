@@ -20,6 +20,11 @@ class Wilson(WalkerBase):
 
     def __init__(self, maze):
         super(Wilson, self).__init__(maze, maze.start(), self.Node(False, None))
+        self._open(self._maze.start())
+        self._maze.paint(self._cell, OPEN_FILL)
+        self.x = 0
+        self.y = 0
+        #self._maze.update_idletasks()
 
     def _mark_next(self, cell, next):
         """Mark the direction gone on the map. Direction is a cell."""
@@ -79,13 +84,22 @@ class Wilson(WalkerBase):
         self._dig()
 
     def step(self):
-        """Modifies the maze in place. Yields True while there is still
-        work to be done on the maze.
+        """Modifies the maze in place..
         """
-        self._open(self._maze.start())
-        self._maze.paint(self._cell, OPEN_FILL)
-        self._maze.update_idletasks()
-
+        if self.x == XCELLS:
+            self.x = 0
+            self.y += 1
+        if self.y == YCELLS:
+            self._isDone = True
+            return
+        self._cell = self._maze.get_cell(self.x, self.y)
+        if not self._is_open(self._cell):
+            self._plan(self._cell)
+            self._dig()
+        self.x += 1
+        
+        """
+        
         for y in xrange(YCELLS):
             for x in xrange(XCELLS):
                 if self._cell is not self._maze.get_cell(x, y):
@@ -93,7 +107,7 @@ class Wilson(WalkerBase):
                 if not self._is_open(self._cell):
                     self._plan(self._cell)
                     self._dig()
-                    self._maze.update_idletasks()
+                    self._maze.update_idletasks()"""    
 
 class LoopyWilson(Wilson):
     """A maze builder that will add loops to the maze"""
@@ -127,7 +141,7 @@ class LoopyWilson(Wilson):
         super(LoopyWilson, self).build_maze()
         for col in self._maze._get_maze_array():
             for cell in col:
-                if cell.is_deadend() and random.random() <= LOOP_PROB:
+                if cell.count_halls() == 1 and random.random() <= LOOP_PROB:
                     direction = self._find_deadend(cell)
                     if direction is not None:
                         self._maze._join_cells(cell, direction)

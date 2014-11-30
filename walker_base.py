@@ -17,6 +17,7 @@ class WalkerBase(object):
         self._maze = maze
         self._cell = position   # This is a cell object
         if default is not object:
+            # TODO: get rid of copy by changing default to function call
             self._map = [[copy.copy(default) for y in xrange(YCELLS)] \
                          for x in xrange(XCELLS)]
 

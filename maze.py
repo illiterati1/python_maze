@@ -3,7 +3,6 @@ The class file for the maze, as well as the cells within the maze.
 Author: Brendan Wilson
 """
 
-import time
 import Tkinter as Tk
 from maze_constants import *
 from maze_pieces import Hall, Cell
@@ -39,23 +38,26 @@ class Maze(Tk.Canvas):
 
         self.lift('corners')
         self.update_idletasks()
+        self.prompt_build()
 
-        self.after(DELAY, self.run, Wilson(self))
-
-        #self.after(DELAY, self.run, depth_walker.DepthWalker(self))
-        """
-        self._walker = breadth_walker.BreadthWalker(self)
-        self._walker.step()
-        self._walker = deadend_filler.DeadendFiller(self)
-        self._walker.step() """
-
-    def run(self, walker):
-        if not walker.is_done():
-            walker.step()
-            #self.update_idletasks()
-            self.after(DELAY, self.run, walker)
+    def _run(self):
+        if not self._walker.is_done():
+            self._walker.step()
+            self.after(DELAY, self._run)
         else:
-            self.run(DepthWalker(self))
+            self.prompt()
+
+    def prompt_build(self):
+        """Get user input before the maze has been built"""
+        self._walker = Wilson(self, 1)
+        self.after(DELAY, self._run)
+
+    def prompt(self):
+        """Get user input after the maze has been built"""
+        raw_input('Press enter to run a search...')
+        self._walker = DepthWalker(self)
+        self.after(DELAY, self._run)
+
 
     def _is_congruent(self, cell):
         """This will make a checkerboard pattern for checking cell walls, so
@@ -139,5 +141,5 @@ class Maze(Tk.Canvas):
 
 if __name__ == '__main__':
     root = Tk.Tk()
-    m = Maze(root)
+    maze = Maze(root)
     root.mainloop()

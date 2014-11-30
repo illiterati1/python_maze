@@ -29,5 +29,5 @@ OPPOSITES = {'north': 'south', 'east': 'west', 'south': 'north', \
 
 # Flags
 ## Wilson's algorithm
-RUSH_WILSON = True
+RUSH_WILSON = False
 LOOP_PROB = 0.5     # Chance for the loop builder to delete a wall at any cell

@@ -80,7 +80,8 @@ class Cell(Piece):
 
     def count_halls(self):
         """Return an integer value of open paths from the cell"""
-        vals = map(lambda h: h.is_open(), self._paths.values())
+        vals = map(lambda h: h.is_open(), \
+                   filter(lambda h: h is not None, self._paths.values()))
         return vals.count(True)
 
     def add_hall(self, direction, hall):

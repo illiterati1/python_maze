@@ -18,12 +18,14 @@ class Wilson(WalkerBase):
             self.isOpen = isOpen
             self.next = next
 
-    def __init__(self, maze):
+    def __init__(self, maze, loopProb=0):
+        # loopProb should be between 0 and 1
         super(Wilson, self).__init__(maze, maze.start(), self.Node(False, None))
         self._open(self._maze.start())
         self._maze.paint(self._cell, OPEN_FILL)
         self.x = 0
         self.y = 0
+        self._loopProb = loopProb
         #self._maze.update_idletasks()
 
     def _mark_next(self, cell, next):
@@ -83,6 +85,23 @@ class Wilson(WalkerBase):
         self._cell = self.read_map(self._cell).next
         self._dig()
 
+    def _open_deadend(self, cell):
+        for path in DIRECTIONS:
+            hall = cell.get_hall(path)
+            if hall is not None and hall.is_open():
+                deadend = cell.get_hall(OPPOSITES[path])
+                if deadend is not None:
+                    deadend.open_wall()
+
+    def _add_braids(self):
+        for row in self._maze.get_maze_array():
+            for cell in row:
+                if cell.count_halls() == 1 and \
+                self._loopProb > random.random():
+                    self._open_deadend(cell)
+                    self.paint(cell, OPEN_FILL)
+        self._maze.update_idletasks()
+
     def step(self):
         """Modifies the maze in place..
         """
@@ -90,60 +109,14 @@ class Wilson(WalkerBase):
             self.x = 0
             self.y += 1
         if self.y == YCELLS:
+            if self._loopProb > 0:
+                self._add_braids()
             self._isDone = True
             return
+
         self._cell = self._maze.get_cell(self.x, self.y)
         if not self._is_open(self._cell):
             self._plan(self._cell)
             self._dig()
-        self.x += 1
-        
-        """
-        
-        for y in xrange(YCELLS):
-            for x in xrange(XCELLS):
-                if self._cell is not self._maze.get_cell(x, y):
-                    self._cell = self._maze.get_cell(x, y)
-                if not self._is_open(self._cell):
-                    self._plan(self._cell)
-                    self._dig()
-                    self._maze.update_idletasks()"""    
-
-class LoopyWilson(Wilson):
-    """A maze builder that will add loops to the maze"""
-
-    def _find_walls(self, cell):
-        directions = []
-        x, y = cell.get_position()
-        for direction, isOpen in cell.get_links().items():
-            if not isOpen:     # If there is a wall
-                newX, newY = walker_base.WalkerBase.movement[direction](x, y)
-                if self._is_valid(newX, newY):
-                    directions.append(direction)
-        return directions
-
-    def _find_deadend(self, cell):
-        """Assumes that cell is a deadend"""
-        possibles = ['north', 'east', 'south', 'west']
-        links = cell.get_links()
-        x, y = cell.get_position()
-        for i in xrange(len(possibles)):
-            left = possibles[i-1]
-            center = possibles[i]
-            right = possibles[(i+1) % len(possibles)]
-            if not (links[left] or links[right] or links[center]):
-                newX, newY = walker_base.WalkerBase.movement[center](x, y)
-                if self._is_valid(newX, newY):
-                    return center
-        return None
-
-    def build_maze(self):
-        super(LoopyWilson, self).build_maze()
-        for col in self._maze._get_maze_array():
-            for cell in col:
-                if cell.count_halls() == 1 and random.random() <= LOOP_PROB:
-                    direction = self._find_deadend(cell)
-                    if direction is not None:
-                        self._maze._join_cells(cell, direction)
-                        self.paint(cell, OPEN_FILL)
-
+                
+        self.x += 1 

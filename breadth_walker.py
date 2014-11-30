@@ -56,35 +56,21 @@ class BreadthWalker(walker_base.WalkerBase):
         else:
             return self.queue.get()
 
-    def _make_mark(self, fromCell, toCell):
-        """A helper function to make marks on the map"""
-        self.read_map(toCell).previous = fromCell
-
     def step(self):
-        cell = self._get_next()
-        hitMarker = False
-        while cell is not self._maze.finish():
-            if cell is marker:
-                hitMarker = True
-                self.queue.put(marker)
-                cell = self._get_next()
-                SEARCH_COLORS.next()
-                continue
+        current = self._get_next()
 
-            self._maze.paint(cell, SEARCH_COLORS.color())
-            if hitMarker:
-                self._maze.update_idletasks()
-                hitMarker = False
-
-            for newCell in cell.get_paths(last=self.read_map(cell).previous):
-                if self.read_map(newCell).previous is None:
-                    # Only worry about unvisited cells
-                    self._make_mark(cell, newCell)
-                    self.queue.put(newCell)
-            cell = self._get_next()
-
-        while cell is not None:
-            # Start cell should point to None
-            self._maze.paint(cell, FOUND_COLOR)
-            cell = self.read_map(cell).previous
-        self._maze.update_idletasks()
+        if current is marker:
+            self.queue.put(marker)
+            SEARCH_COLORS.next()
+        elif current is self._maze.finish():
+            while current is not None:
+                # Start cell should point to None
+                self._maze.paint(current, FOUND_COLOR)
+                current = self.read_map(current).previous
+            self._isDone = True
+        else:
+            self._maze.paint(current, SEARCH_COLORS.color())
+            for next in current.get_paths(last=self.read_map(current).previous):
+                self.read_map(next).previous = current
+                self.queue.put(next)
+            self.step()

@@ -15,10 +15,11 @@ class DepthWalker(walker_base.WalkerBase):
 
     class Node(object):
 
-        __slots__ = 'parent'
+        __slots__ = 'parent', 'visited'
 
         def __init__(self):
             self.parent = None
+            self.visited = False
 
     def __init__(self, maze):
         super(DepthWalker, self).__init__(maze, maze.start(), self.Node())
@@ -28,6 +29,7 @@ class DepthWalker(walker_base.WalkerBase):
     def step(self):
         current = self._stack[-1]
         self.paint(current, SEARCH_COLOR)
+        self.read_map(current).visited = True
 
         if current is self._maze.finish():
             self._isDone = True
@@ -37,7 +39,7 @@ class DepthWalker(walker_base.WalkerBase):
             return
 
         paths = current.get_paths(last=self.read_map(current).parent)
-        paths = filter((lambda c: self.read_map(c).parent is None), paths)
+        paths = filter((lambda c: self.read_map(c).visited is False), paths)
         random.shuffle(paths)   # Make the path selection random
 
         if len(paths) == 0:

@@ -7,8 +7,8 @@ from sys import setrecursionlimit
 DELAY = 1
 
 # Suggest that these be equal to 1 mod the CELL_SIZE
-MAZE_HEIGHT = 702
-MAZE_WIDTH = 702
+MAZE_HEIGHT = 602
+MAZE_WIDTH = 602
 
 CELL_SIZE = 10
 # includes space for walls, so subtract 2 ultimately
@@ -29,5 +29,5 @@ OPPOSITES = {'north': 'south', 'east': 'west', 'south': 'north', \
 
 # Flags
 ## Wilson's algorithm
-RUSH_WILSON = False
-LOOP_PROB = 0.5     # Chance for the loop builder to delete a wall at any cell
+RUSH_WILSON = True
+

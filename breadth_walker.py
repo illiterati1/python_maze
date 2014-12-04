@@ -71,6 +71,7 @@ class BreadthWalker(walker_base.WalkerBase):
         else:
             self._maze.paint(current, SEARCH_COLORS.color())
             for next in current.get_paths(last=self.read_map(current).previous):
-                self.read_map(next).previous = current
-                self.queue.put(next)
+                if self.read_map(next).previous is None:
+                    self.read_map(next).previous = current
+                    self.queue.put(next)
             self.step()

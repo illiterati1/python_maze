@@ -79,7 +79,9 @@ class Cell(Piece):
         return str(self.get_position())
 
     def count_halls(self):
-        """Return an integer value of open paths from the cell"""
+        """Return an integer value of open paths from the cell. Basically
+        the degree.
+        """
         vals = map(lambda h: h.is_open(), \
                    filter(lambda h: h is not None, self._paths.values()))
         return vals.count(True)

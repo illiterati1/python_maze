@@ -10,6 +10,8 @@ from wilson import Wilson
 from depth_walker import DepthWalker
 from breadth_walker import BreadthWalker
 from deadend_filler import DeadendFiller
+from tremaux import Tremaux
+from mouse import RandomMouse
 
 class Maze(Tk.Canvas):
 
@@ -49,15 +51,51 @@ class Maze(Tk.Canvas):
 
     def prompt_build(self):
         """Get user input before the maze has been built"""
-        self._walker = Wilson(self, 1)
+        factor = raw_input("Enter loop factor (0: No loops; 100: All loops): ")
+        self._walker = Wilson(self, float(factor) / 100.0)
         self.after(DELAY, self._run)
 
     def prompt(self):
         """Get user input after the maze has been built"""
-        raw_input('Press enter to run a search...')
-        self._walker = DepthWalker(self)
+        
+        classes = {'d': DepthWalker, 'b': BreadthWalker, 'f': DeadendFiller, \
+                   't': Tremaux, 'm': RandomMouse}
+        while True:
+            print "Choose maze solving algorithm"
+            print "(D)epth first search"
+            print "(B)readth first search"
+            print "Deadend (f)iller"
+            print "(T)remaux's algorithm"
+            print "Random (m)ouse"
+            print "(R)ebuild maze"
+            print "(Q)uit"
+            choice = raw_input(">> ").strip().lower()
+
+            if choice == 'q':
+                raise SystemExit
+            elif choice == 'r':
+                self.rebuild()
+                return
+
+            try:
+                walkClass = classes[choice]
+            except KeyError:
+                continue
+
+            break
+
+        self._walker = walkClass(self)
         self.after(DELAY, self._run)
 
+    def rebuild(self):
+        """Clean and rebuild the maze"""
+        for column in self._cells:
+            for cell in column:
+                for hall in cell.get_halls():
+                    hall.close_wall()
+            self.paint(cell, NULL_FILL)
+        self.update_idletasks()
+        self.prompt_build()
 
     def _is_congruent(self, cell):
         """This will make a checkerboard pattern for checking cell walls, so
@@ -119,19 +157,20 @@ class Maze(Tk.Canvas):
                 self.paint(cell, OPEN_FILL)
         self.update_idletasks()
 
-    def paint(self, cell, color):
+    def paint(self, cell, color, paintWalls=True):
         """Takes a cell object and a color to paint it.
         Color must be something that Tkinter will recognize."""
         x, y = cell.get_position()
         self.itemconfigure(cell.get_id(), fill=color, outline=color)
 
         # Paint the walls
-        for hall in cell.get_halls():
-            if hall.is_open():  # The wall is down
-                fillColor = color
-            else:
-                fillColor = NULL_FILL
-            self.itemconfigure(hall.get_id(), fill=fillColor)
+        if paintWalls:
+            for hall in cell.get_halls():
+                if hall.is_open():  # The wall is down
+                    fillColor = color
+                else:
+                    fillColor = NULL_FILL
+                self.itemconfigure(hall.get_id(), fill=fillColor)
 
     def start(self):
         return self._cells[0][0]

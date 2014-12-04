@@ -18,7 +18,7 @@ class WalkerBase(object):
         self._cell = position   # This is a cell object
         if default is not object:
             # TODO: get rid of copy by changing default to function call
-            self._map = [[copy.copy(default) for y in xrange(YCELLS)] \
+            self._map = [[copy.deepcopy(default) for y in xrange(YCELLS)] \
                          for x in xrange(XCELLS)]
 
     def is_done(self):
@@ -30,9 +30,9 @@ class WalkerBase(object):
         when the walker is finished."""
         raise NotImplementedError()
 
-    def paint(self, cell, color):
+    def paint(self, cell, color, paintWalls=True):
         """Paint the current cell the indicated color"""
-        self._maze.paint(cell, color)
+        self._maze.paint(cell, color, paintWalls)
 
     def init_map(self, default):
         """Set each point on the map to some default value"""

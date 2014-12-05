@@ -121,7 +121,7 @@ class Maze(Tk.Canvas):
         tk id.
         """
         x, y = cell.get_position()
-        topLeft = (x * CELL_SIZE + 2, y * CELL_SIZE + 2)
+        topLeft = (x * CELL_SIZE + 1, y * CELL_SIZE + 1)
         bottomRight = (topLeft[0] + CELL_SIZE - 2, topLeft[1] + CELL_SIZE - 2)
         cell.set_id(self.create_rectangle(topLeft, bottomRight, \
                                           fill=NULL_FILL, outline=NULL_FILL))
@@ -129,8 +129,8 @@ class Maze(Tk.Canvas):
     def _plot_walls(self, cell):
         """Plot the four walls for a cell and set the hall tk ids."""
         x, y = cell.get_position()
-        x = (x * CELL_SIZE) + 1
-        y = (y * CELL_SIZE) + 1
+        x = (x * CELL_SIZE) + 0
+        y = (y * CELL_SIZE) + 0
 
         topLeft = (x, y)
         bottomLeft = (x, y + CELL_SIZE)

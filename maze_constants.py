@@ -4,17 +4,15 @@ Constant values for the maze program
 
 from sys import setrecursionlimit
 
-DELAY = 5
+DELAY = 5   # milliseconds
 
-# Suggest that these be equal to 1 mod the CELL_SIZE
-MAZE_HEIGHT = 602
-MAZE_WIDTH = 602
-
-CELL_SIZE = 10
+CELL_SIZE = 10      # pixels
 # includes space for walls, so subtract 2 ultimately
 
-XCELLS = MAZE_WIDTH / CELL_SIZE
-YCELLS = MAZE_HEIGHT / CELL_SIZE
+XCELLS = 60
+YCELLS = 60
+MAZE_HEIGHT = YCELLS * CELL_SIZE + 1
+MAZE_WIDTH = XCELLS * CELL_SIZE + 1
 setrecursionlimit((XCELLS+1) * (YCELLS+1))
 
 # Colors
@@ -26,8 +24,4 @@ OPEN_FILL = 'white'
 DIRECTIONS = ['north', 'east', 'south', 'west']
 OPPOSITES = {'north': 'south', 'east': 'west', 'south': 'north', \
              'west': 'east'}
-
-# Flags
-## Wilson's algorithm
-RUSH_WILSON = True
 

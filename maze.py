@@ -40,7 +40,12 @@ class Maze(Tk.Canvas):
                 if self._is_congruent(cell):
                     self._plot_walls(cell)
 
+        for cell, color in zip([self.start(), self.finish()], DOT_COLORS):
+            self.create_oval(*self._cell_bounds(cell), fill=color, \
+                               tag='dots', outline='')
+
         self.lift('corners')
+        self.lower('dots')
         self.update_idletasks()
         self.prompt_build()
 
@@ -49,6 +54,7 @@ class Maze(Tk.Canvas):
             self._walker.step()
             self.after(self._walker.delay(), self._run)
         else:
+            self.lift('dots')
             self.prompt()
 
     def prompt_build(self):
@@ -101,6 +107,7 @@ class Maze(Tk.Canvas):
 
     def rebuild(self):
         """Clean and rebuild the maze"""
+        self.lower('dots')
         for column in self._cells:
             for cell in column:
                 for hall in cell.get_halls():
@@ -120,17 +127,24 @@ class Maze(Tk.Canvas):
         """Make a rect on the canvas the size of a cell, and set the cell's
         tk id.
         """
+        topLeft, bottomRight = self._cell_bounds(cell)
+        cell.set_id(self.create_rectangle(topLeft, bottomRight, \
+                                          fill=NULL_FILL, outline=NULL_FILL))
+
+    def _cell_bounds(self, cell):
+        """Return the a tuple of the top left and bottom right corners of the
+        cell object suitable for drawing.
+        """
         x, y = cell.get_position()
         topLeft = (x * CELL_SIZE + 1, y * CELL_SIZE + 1)
         bottomRight = (topLeft[0] + CELL_SIZE - 2, topLeft[1] + CELL_SIZE - 2)
-        cell.set_id(self.create_rectangle(topLeft, bottomRight, \
-                                          fill=NULL_FILL, outline=NULL_FILL))
+        return topLeft, bottomRight
 
     def _plot_walls(self, cell):
         """Plot the four walls for a cell and set the hall tk ids."""
         x, y = cell.get_position()
-        x = (x * CELL_SIZE) + 0
-        y = (y * CELL_SIZE) + 0
+        x = (x * CELL_SIZE)
+        y = (y * CELL_SIZE)
 
         topLeft = (x, y)
         bottomLeft = (x, y + CELL_SIZE)

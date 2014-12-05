@@ -104,9 +104,8 @@ class Maze(Tk.Canvas):
             for cell in column:
                 for hall in cell.get_halls():
                     hall.close_wall()
-            self.paint(cell, NULL_FILL)
+                self.paint(cell, NULL_FILL)
         self.update_idletasks()
-        self.after(50)
         self.prompt_build()
 
     def _is_congruent(self, cell):
@@ -172,7 +171,6 @@ class Maze(Tk.Canvas):
     def paint(self, cell, color, paintWalls=True):
         """Takes a cell object and a color to paint it.
         Color must be something that Tkinter will recognize."""
-        x, y = cell.get_position()
         self.itemconfigure(cell.get_id(), fill=color, outline=color)
 
         # Paint the walls

@@ -4,7 +4,7 @@ Constant values for the maze program
 
 from sys import setrecursionlimit
 
-DELAY = 1
+DELAY = 5
 
 # Suggest that these be equal to 1 mod the CELL_SIZE
 MAZE_HEIGHT = 602

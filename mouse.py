@@ -14,7 +14,9 @@ class RandomMouse(WalkerBase):
 
     def __init__(self, maze):
         super(RandomMouse, self).__init__(maze, maze.start())
+        self._maze.clean()
         self._last = None
+        self._delay = 50
 
     def step(self):
         if self._cell is self._maze.finish():

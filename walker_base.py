@@ -13,6 +13,7 @@ class WalkerBase(object):
         """Takes a cell object from the maze in question
         NOTE: default must not be object if you want a map of any kind.
         """
+        self._delay = DELAY
         self._isDone = False
         self._maze = maze
         self._cell = position   # This is a cell object
@@ -20,6 +21,9 @@ class WalkerBase(object):
             # TODO: get rid of copy by changing default to function call
             self._map = [[copy.deepcopy(default) for y in xrange(YCELLS)] \
                          for x in xrange(XCELLS)]
+
+    def delay(self):
+        return self._delay
 
     def is_done(self):
         return self._isDone

@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """
 The class file for the maze, as well as the cells within the maze.
 Author: Brendan Wilson
@@ -45,15 +47,24 @@ class Maze(Tk.Canvas):
     def _run(self):
         if not self._walker.is_done():
             self._walker.step()
-            self.after(DELAY, self._run)
+            self.after(self._walker.delay(), self._run)
         else:
             self.prompt()
 
     def prompt_build(self):
         """Get user input before the maze has been built"""
         factor = raw_input("Enter loop factor (0: No loops; 100: All loops): ")
-        self._walker = Wilson(self, float(factor) / 100.0)
-        self.after(DELAY, self._run)
+        print "How much of the maze building would you like to see?"
+        print "1: Show me everything"
+        print "2: Just give me the broad strokes"
+        print "3: I don't have all day. Mach schnell!"
+        try:
+            speed = int(raw_input(">> "))
+        except Exception as e:
+            print e
+        print 'Building...'
+        self._walker = Wilson(self, float(factor) / 100.0, speed)
+        self.after(self._walker.delay(), self._run)
 
     def prompt(self):
         """Get user input after the maze has been built"""
@@ -85,7 +96,7 @@ class Maze(Tk.Canvas):
             break
 
         self._walker = walkClass(self)
-        self.after(DELAY, self._run)
+        self.after(self._walker.delay(), self._run)
 
     def rebuild(self):
         """Clean and rebuild the maze"""
@@ -95,6 +106,7 @@ class Maze(Tk.Canvas):
                     hall.close_wall()
             self.paint(cell, NULL_FILL)
         self.update_idletasks()
+        self.after(50)
         self.prompt_build()
 
     def _is_congruent(self, cell):

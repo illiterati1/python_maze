@@ -9,8 +9,8 @@ DELAY = 5   # milliseconds
 CELL_SIZE = 10      # pixels
 # includes space for walls, so subtract 2 ultimately
 
-XCELLS = 60
-YCELLS = 60
+XCELLS = 50
+YCELLS = 50
 MAZE_HEIGHT = YCELLS * CELL_SIZE + 1
 MAZE_WIDTH = XCELLS * CELL_SIZE + 1
 setrecursionlimit(XCELLS * YCELLS)

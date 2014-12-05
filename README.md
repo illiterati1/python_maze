@@ -12,7 +12,7 @@ Then the program will ask how much detail you want to see while building the maz
 Once the maze is finished, you will be given options for maze completion algorithms to run. You will have a choice between depth-first search, breadth-first search, deadend filler, Tremaux's algorithm, random mouse, rebuilding the maze, and quitting the program. 
 NOTE: Random mouse may take a very, very long time to complete. As of now, there is no way to stop a solver in progress other than quitting, so be careful about selecting this. It's mostly a novelty.
 You may also quit at any time by closing the maze window. The maze solvers will proceed from the top left corner of the maze to the bottom right. These points will be indicated by a green and red dot respectively. Again, see the algorithm section if you want to know the gory details.
-If you want to change the size of the maze, you will have to be a bit adventurous and modify the maze_constants.py file. XCELLS and YCELLS determine how tall/wide the maze is. CELL_SIZE can be changed as well, should you want bigger or smaller squares. I take no responsibility for results obtained through fiddling with these.
+If you want to change the size of the maze, you will have to be a bit adventurous and modify the maze_constants.py file. XCELLS and YCELLS determine how tall/wide the maze is. CELL_SIZE can be changed as well, should you want bigger or smaller squares. I take no responsibility for results obtained through fiddling with these. NOTE: There is a bug if XCELLS and YCELLS are set smaller than about 10x10. I suggest not doing this until I can sort it out.
 
 
 Algorithms:

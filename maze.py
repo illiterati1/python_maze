@@ -60,8 +60,9 @@ class Maze(Tk.Canvas):
         print "3: I don't have all day. Mach schnell!"
         try:
             speed = int(raw_input(">> "))
-        except Exception as e:
-            print e
+        except ValueError:
+            print "Since you can't type, I can only assume you're in a hurry."
+            speed = 3
         print 'Building...'
         self._walker = Wilson(self, float(factor) / 100.0, speed)
         self.after(self._walker.delay(), self._run)

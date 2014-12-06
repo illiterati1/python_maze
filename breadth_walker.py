@@ -3,12 +3,15 @@ A breadth first search walker.
 Author: Brendan Wilson
 """
 
-from Queue import Queue
+from collections import deque
 from maze_constants import *
 import walker_base
 from maze_pieces import MazeError
 
 class SearchColors(object):
+    """An object that will generate the gray cyclic pattern used by
+    breadth-first search
+    """
     colors = ['gray80', 'gray78', 'gray76', 'gray74', 'gray72', 'gray70', \
               'gray68', 'gray66', 'gray64', 'gray62', 'gray60']
 
@@ -43,24 +46,15 @@ class BreadthWalker(walker_base.WalkerBase):
     def __init__(self, maze):
         super(BreadthWalker, self).__init__(maze, maze.start(), self.Node())
         self._maze.clean()
-        self.queue = Queue()
-        self.queue.put(self._cell)
-        self.queue.put(marker)
-
-    def _get_next(self):
-        """This is necessary because .get() will wait forever if the queue 
-        is empty
-        """
-        if self.queue.empty():
-            return None
-        else:
-            return self.queue.get()
+        self.queue = deque()
+        self.queue.append(self._cell)
+        self.queue.append(marker)
 
     def step(self):
-        current = self._get_next()
+        current = self.queue.popleft()
 
         if current is marker:
-            self.queue.put(marker)
+            self.queue.append(marker)
             SEARCH_COLORS.next()
         elif current is self._maze.finish():
             while current is not None:
@@ -73,5 +67,5 @@ class BreadthWalker(walker_base.WalkerBase):
             for next in current.get_paths(last=self.read_map(current).previous):
                 if self.read_map(next).previous is None:
                     self.read_map(next).previous = current
-                    self.queue.put(next)
+                    self.queue.append(next)
             self.step()

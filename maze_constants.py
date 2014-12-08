@@ -30,7 +30,7 @@ YCELLS = 50
 MAZE_HEIGHT = YCELLS * CELL_SIZE + 1
 MAZE_WIDTH = XCELLS * CELL_SIZE + 1
 if XCELLS * YCELLS > sys.getrecursionlimit():
-    setrecursionlimit(XCELLS * YCELLS)
+    sys.setrecursionlimit(XCELLS * YCELLS)
 
 # Colors
 NULL_FILL = 'black'

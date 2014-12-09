@@ -220,5 +220,6 @@ class Maze(Tk.Canvas):
 
 if __name__ == '__main__':
     root = Tk.Tk()
+    root.title('Maze')
     maze = Maze(root)
     root.mainloop()

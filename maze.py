@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from textwrap import fill
 import Tkinter as Tk
 from maze_constants import *
 from maze_pieces import Hall, Cell
@@ -219,6 +220,11 @@ class Maze(Tk.Canvas):
         return self._cells[XCELLS-1][YCELLS-1]
 
 if __name__ == '__main__':
+    print "python_maze  Copyright (C) 2014  Brendan Wilson"
+    print "This program comes with ABSOLUTELY NO WARRANTY."
+    print fill("This is free software, and you are welcome to " + \
+                        "redistribute it under certain conditions.")
+    print "See http://www.gnu.org/copyleft/gpl.html for more details."
     root = Tk.Tk()
     root.title('Maze')
     maze = Maze(root)

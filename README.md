@@ -17,9 +17,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-This is a maze generation and solving project built using Python 2.7.6. To run it, I would recommend opening a terminal in the folder containing the program files, and calling
+This is a maze generation and solving project built using Python 2. You will need to have Python2 and the `python-tk` package installed. To run it, open a terminal in the folder containing the program files, and call
 
-    python maze.py
+    python2 maze.py
 
 This will open the maze window, however at this point all interaction is still done using the terminal window, so make sure to have that visible. The program will ask you how 'loopy' you want the maze, or in technical terms, how many cycles the graph contains. Enter a number from 0 to 100 to set this (0 will generate no cycles, 100 will be almost nothing but.) 
 
